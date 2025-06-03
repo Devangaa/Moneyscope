@@ -31,18 +31,25 @@ def deteksi_tren_sliding_window(data: list, window_size: int = 3) -> str:
         else:
             trend_count["sideways"] += 1
 
-    sorted_trend = sorted(trend_count.items(), key=lambda x: x[1], reverse=True)
-    if sorted_trend[0][1] == sorted_trend[1][1]:
+    trend_list = list(trend_count.items())
+
+    n = len(trend_list)
+    for i in range(n):
+        for j in range(0, n - i - 1):
+            if trend_list[j][1] < trend_list[j + 1][1]:
+                trend_list[j], trend_list[j + 1] = trend_list[j + 1], trend_list[j]
+
+    if trend_list[0][1] == trend_list[1][1]:
         return "Sideways"
     else:
-        if sorted_trend[0][0] == "up":
+        if trend_list[0][0] == "up":
             return "Uptrend"
-        elif sorted_trend[0][0] == "down":
+        elif trend_list[0][0] == "down":
             return "Downtrend"
         else:
             return "Sideways"
 
-tanggal_awal = tanggal_akhir - timedelta(days = 6)
+tanggal_awal = tanggal_akhir - timedelta(days = 2)
 df_3hari = df[df["Tanggal"] >= tanggal_awal].sort_values("Tanggal")
 harga_3hari = df_3hari["Harga Dolar"].tolist() 
 

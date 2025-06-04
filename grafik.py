@@ -4,7 +4,7 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime, timedelta
 
-#Function
+#function
 def cls():
     os.system('cls')
 
@@ -88,7 +88,7 @@ def konversi_rupiah_ke_mata_uang(jumlah_rupiah, kurs):
 def konversi_mata_uang_ke_rupiah(jumlah_mata_uang, kurs):
     return jumlah_mata_uang * kurs
 
-#Batas function
+#batas function
 
 #setup google sheet
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]

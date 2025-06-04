@@ -10,7 +10,16 @@ creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", sco
 client = gspread.authorize(creds)
 
 #ambil data dari sheet
-sheet = client.open_by_key("13-0ZzKKOKq7NPwnCON4plSgNnrwECCS-MYDSKyfVpFc").sheet1
+spreadsheet = client.open_by_key("1mpPFKqyTTugKHharPyyC0UpbG7p3xRxElNpty4zFZdM")
+
+mata_uang = input("Pilih mata uang (USD/EUR/JPY/CNY/SGD): ").upper()
+
+try:
+    sheet = spreadsheet.worksheet(mata_uang)
+except:
+    print("Sheet tidak ditemukan untuk mata uang:", mata_uang)
+    exit()
+
 data = sheet.get_all_records()
 df = pd.DataFrame(data)
 df["Tanggal"] = pd.to_datetime(df["Tanggal"], dayfirst=True)
@@ -79,7 +88,7 @@ def cari_tanggal(data, target_tanggal):
 
 cls()
 
-print("Ingin cek apa? (1: Tren, 2: Harga Dolar, 3: Cari Tanggal)")
+print(f"Ingin cek apa? (1: Tren, 2: Harga {mata_uang}, 3: Cari Tanggal)")
 pilihan = int(input("Masukkan pilihan (1/2/3) : "))
 if pilihan == 1:
     hari = int(input("Jumlah hari (3/7) : "))
@@ -88,9 +97,9 @@ if pilihan == 1:
     else:
         harga_hari = pilih_hari_tren(hari)
         trend = deteksi_tren_sliding_window(harga_hari)
-        print(f"Tren harga dolar dalam {hari} hari terakhir: {trend}")
+        print(f"Tren harga {mata_uang} dalam {hari} hari terakhir: {trend}")
 elif pilihan == 2:
-    print(f"Harga dolar pada {tanggal_akhir.strftime('%d-%m-%Y')}: Rp{df[df['Tanggal'] == tanggal_akhir]['Harga Dolar'].values[0]}")
+    print(f"Harga {mata_uang} pada {tanggal_akhir.strftime('%d-%m-%Y')}: Rp{df[df['Tanggal'] == tanggal_akhir]['Harga Dolar'].values[0]}")
 elif pilihan == 3:
     tanggal_input = input("Masukkan tanggal (dd-mm-yyyy): ")
     try:
@@ -105,7 +114,7 @@ elif pilihan == 3:
         
         if data_tanggal:
             harga = data_tanggal['Harga Dolar']
-            print(f"Harga dolar pada {target_tanggal.strftime('%d-%m-%Y')}: Rp{harga}")
+            print(f"Harga {mata_uang} pada {target_tanggal.strftime('%d-%m-%Y')}: Rp{harga}")
         else:
             print("Tanggal tidak ditemukan dalam data.")
     except ValueError:

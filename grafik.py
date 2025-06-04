@@ -4,29 +4,7 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime, timedelta
 
-#setup google sheet
-scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
-client = gspread.authorize(creds)
-
-#ambil data dari sheet
-spreadsheet = client.open_by_key("1mpPFKqyTTugKHharPyyC0UpbG7p3xRxElNpty4zFZdM")
-
-mata_uang = input("Pilih mata uang (USD/EUR/JPY/CNY/SGD): ").upper()
-
-try:
-    sheet = spreadsheet.worksheet(mata_uang)
-except:
-    print("Sheet tidak ditemukan untuk mata uang:", mata_uang)
-    exit()
-
-data = sheet.get_all_records()
-df = pd.DataFrame(data)
-df["Tanggal"] = pd.to_datetime(df["Tanggal"], dayfirst=True)
-df["Harga Dolar"] = df["Harga Dolar"].astype(float)
-tanggal_akhir = df["Tanggal"].max()
-
-#kode
+#function
 def cls():
     os.system('cls')
 
@@ -110,6 +88,33 @@ def konversi_rupiah_ke_mata_uang(jumlah_rupiah, kurs):
 def konversi_mata_uang_ke_rupiah(jumlah_mata_uang, kurs):
     return jumlah_mata_uang * kurs
 
+#batas function
+
+#setup google sheet
+scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
+client = gspread.authorize(creds)
+
+#ambil data dari sheet
+cls()
+
+spreadsheet = client.open_by_key("1mpPFKqyTTugKHharPyyC0UpbG7p3xRxElNpty4zFZdM")
+
+mata_uang = input("Pilih mata uang (USD/EUR/JPY/CNY/SGD): ").upper()
+
+try:
+    sheet = spreadsheet.worksheet(mata_uang)
+except:
+    print("Sheet tidak ditemukan untuk mata uang:", mata_uang)
+    exit()
+
+data = sheet.get_all_records()
+df = pd.DataFrame(data)
+df["Tanggal"] = pd.to_datetime(df["Tanggal"], dayfirst=True)
+df["Harga Dolar"] = df["Harga Dolar"].astype(float)
+tanggal_akhir = df["Tanggal"].max()
+
+#kode
 cls()
 
 print(f"Ingin cek apa? (1: Tren, 2: Harga {mata_uang}, 3: Cari Tanggal, 4: Deteksi Harga Ekstrem (Tertinggi dan Terendah), 5: Konversi Mata Uang)")

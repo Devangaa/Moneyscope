@@ -100,7 +100,7 @@ cls()
 
 spreadsheet = client.open_by_key("1mpPFKqyTTugKHharPyyC0UpbG7p3xRxElNpty4zFZdM")
 
-mata_uang = input("Pilih mata uang (USD/EUR/JPY/CNY/SGD): ").upper()
+mata_uang = input("Pilih mata uang (USD/EUR/JPY/MYR/KRW/CNY/SGD): ").upper()
 
 try:
     sheet = spreadsheet.worksheet(mata_uang)

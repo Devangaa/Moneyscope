@@ -92,6 +92,16 @@ def bandingkan_mata_uang (spreadsheet, daftar_mata_uang, jumlah_hari):
     hasil_perbandingan = []
     tanggal_akhir_global = None
 
+    simbol_mata_uang = {
+        "USD": "$",
+        "EUR": "€",
+        "JPY": "¥",
+        "MYR": "RM",
+        "KRW": "₩",
+        "CNY": "¥",
+        "SGD": "S$"
+    }
+
     for kode in daftar_mata_uang:
         try:
             sheet = spreadsheet.worksheet(kode)
@@ -128,7 +138,9 @@ def bandingkan_mata_uang (spreadsheet, daftar_mata_uang, jumlah_hari):
 
     print(f"\nPerbandingan Nilai Tukar dalam {jumlah_hari} Hari Terakhir (berdasarkan kurs per {tanggal_akhir_global.strftime('%d-%m-%Y')}):\n")
     for h in hasil_perbandingan:
-        print(f"{h['Mata Uang']} - Tertinggi: Rp{h['Tertinggi']:.2f}, Terendah: Rp{h['Terendah']:.2f}, Terbaru: Rp{h['Terbaru']:.2f}")
+        kode = h['Mata Uang']
+        simbol = simbol_mata_uang.get(kode, "")
+        print(f"{kode} - Tertinggi: {simbol}{h['Tertinggi']:.2f}, Terendah: {simbol}{h['Terendah']:.2f}, Terbaru: {simbol}{h['Terbaru']:.2f}")
 
 #batas function
 
@@ -230,5 +242,5 @@ elif pilihan == 5:
 
 elif pilihan == 6:
     hari = int(input("Bandingkan nilai tukar dalam berapa hari terakhir? : "))
-    mata_uang = ["USD", "EUR", "JPY", "MYR", "KRW", "CNY", "SGD"]
-    bandingkan_mata_uang (spreadsheet, mata_uang, hari)
+    daftar_mata_uang = ["USD", "EUR", "JPY", "MYR", "KRW", "CNY", "SGD"]
+    bandingkan_mata_uang(spreadsheet, daftar_mata_uang, hari)

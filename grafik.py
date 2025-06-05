@@ -10,7 +10,7 @@ def cls():
 
 def deteksi_tren_sliding_window(data: list, window_size = 3):
     trend_count = {"up": 0, "down": 0, "sideways": 0}
-    
+
     for i in range(len(data) - window_size + 1):
         start = data[i]
         end = data[i + window_size - 1]
@@ -88,6 +88,26 @@ def konversi_rupiah_ke_mata_uang(jumlah_rupiah, kurs):
 def konversi_mata_uang_ke_rupiah(jumlah_mata_uang, kurs):
     return jumlah_mata_uang * kurs
 
+def prediksi_tren_multi_window(df, windows=[3,5,7]):
+    hasil_tren = []
+
+    for harga in windows:
+        harga_hari = pilih_hari_tren(harga)  
+        tren = deteksi_tren_sliding_window(harga_hari)  
+        hasil_tren.append(tren)
+
+    hitung = {"Uptrend":0, "Downtrend":0, "Sideways":0}
+    for t in hasil_tren:
+        hitung[t] += 1
+
+    max_jumlah = max(hitung.values())
+    tren_terbanyak = [k for k, v in hitung.items() if v == max_jumlah]
+
+    if len(tren_terbanyak) == 1:
+        return tren_terbanyak[0]
+    else:
+        return "Sideways"
+
 #batas function
 
 #setup google sheet
@@ -100,7 +120,7 @@ cls()
 
 spreadsheet = client.open_by_key("1mpPFKqyTTugKHharPyyC0UpbG7p3xRxElNpty4zFZdM")
 
-mata_uang = input("Pilih mata uang (USD/EUR/JPY/CNY/SGD): ").upper()
+mata_uang = input("Pilih mata uang (USD/EUR/JPY/MYR/KRW/CNY/SGD): ").upper()
 
 try:
     sheet = spreadsheet.worksheet(mata_uang)
@@ -117,8 +137,8 @@ tanggal_akhir = df["Tanggal"].max()
 #kode
 cls()
 
-print(f"Ingin cek apa? (1: Tren, 2: Harga {mata_uang}, 3: Cari Tanggal, 4: Deteksi Harga Ekstrem (Tertinggi dan Terendah), 5: Konversi Mata Uang)")
-pilihan = int(input("Masukkan pilihan (1/2/3/4/5) : "))
+print(f"Ingin cek apa? (1: Tren, 2: Harga {mata_uang}, 3: Cari Tanggal, 4: Deteksi Harga Ekstrem (Tertinggi dan Terendah), 5: Konversi Mata Uang, 6: Prediksi Arah Trend Sederhana)")
+pilihan = int(input("Masukkan pilihan (1/2/3/4/5/6) : "))
 if pilihan == 1:
     hari = int(input("Jumlah hari (3/7) : "))
     if hari not in [3, 7]:
@@ -185,3 +205,6 @@ elif pilihan == 5:
             print("Input tidak valid.")
     else:
         print("Pilihan arah tidak valid.")
+elif pilihan == 6:
+    tren_prediksi = prediksi_tren_multi_window(df)
+    print(f"Prediksi tren harga {mata_uang} berdasarkan 3, 5, dan 7 hari terakhir: {tren_prediksi}")

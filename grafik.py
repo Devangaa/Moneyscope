@@ -10,7 +10,7 @@ def cls():
 
 def deteksi_tren_sliding_window(data: list, window_size = 3):
     trend_count = {"up": 0, "down": 0, "sideways": 0}
-
+    
     for i in range(len(data) - window_size + 1):
         start = data[i]
         end = data[i + window_size - 1]
@@ -127,51 +127,6 @@ def fitur_perbandingan_mata_uang(spreadsheet):
         tanggal_akhir = df_temp["Tanggal"].max()
         if tanggal_akhir_global is None or tanggal_akhir < tanggal_akhir_global:
             tanggal_akhir_global = tanggal_akhir
-def prediksi_tren_multi_window(df, windows=[3,5,7]):
-    hasil_tren = []
-
-    for harga in windows:
-        harga_hari = pilih_hari_tren(harga)  
-        tren = deteksi_tren_sliding_window(harga_hari)  
-        hasil_tren.append(tren)
-
-    hitung = {"Uptrend":0, "Downtrend":0, "Sideways":0}
-    for t in hasil_tren:
-        hitung[t] += 1
-
-    max_jumlah = max(hitung.values())
-    tren_terbanyak = [k for k, v in hitung.items() if v == max_jumlah]
-
-    if len(tren_terbanyak) == 1:
-        return tren_terbanyak[0]
-    else:
-        return "Sideways"
-    
-def bandingkan_mata_uang (spreadsheet, daftar_mata_uang, jumlah_hari):
-    hasil_perbandingan = []
-    tanggal_akhir_global = None
-
-    simbol_mata_uang = {
-        "USD": "$",
-        "EUR": "€",
-        "JPY": "¥",
-        "MYR": "RM",
-        "KRW": "₩",
-        "CNY": "¥",
-        "SGD": "S$"
-    }
-
-    for kode in daftar_mata_uang:
-        try:
-            sheet = spreadsheet.worksheet(kode)
-            data = sheet.get_all_records()
-            df = pd.DataFrame(data)
-            df["Tanggal"] = pd.to_datetime(df["Tanggal"], dayfirst=True)
-            df["Harga Dolar"] = df["Harga Dolar"].astype(float)
-
-            tanggal_akhir = df["Tanggal"].max()
-            if tanggal_akhir_global is None or tanggal_akhir < tanggal_akhir_global:
-                tanggal_akhir_global = tanggal_akhir
 
         tanggal_awal = tanggal_akhir - timedelta(days=hari - 1)
         df_hari = df_temp[df_temp["Tanggal"] >= tanggal_awal].sort_values("Tanggal")
@@ -233,8 +188,8 @@ tanggal_akhir = df["Tanggal"].max()
 #kode
 cls()
 
-print(f"Ingin cek apa? (1: Tren, 2: Harga {mata_uang}, 3: Cari Tanggal, 4: Deteksi Harga Ekstrem (Tertinggi dan Terendah), 5: Konversi Mata Uang, 6: Prediksi Arah Trend Sederhana, 7: Perbandingan Dua Mata Uang)")
-pilihan = int(input("Masukkan pilihan (1/2/3/4/5/6/7) : "))
+print(f"Ingin cek apa? (1: Tren, 2: Harga {mata_uang}, 3: Cari Tanggal, 4: Deteksi Harga Ekstrem (Tertinggi dan Terendah), 5: Konversi Mata Uang, 6: Perbandingan Mata Uang)")
+pilihan = int(input("Masukkan pilihan (1/2/3/4/5/6) : "))
 if pilihan == 1:
     hari = int(input("Jumlah hari (3/7) : "))
     if hari not in [3, 7]:
@@ -301,14 +256,8 @@ elif pilihan == 5:
             print("Input tidak valid.")
     else:
         print("Pilihan arah tidak valid.")
+
 elif pilihan == 6:
     fitur_perbandingan_mata_uang(spreadsheet)
 else:
     print("Pilihan tidak valid.")
-
-    tren_prediksi = prediksi_tren_multi_window(df)
-    print(f"Prediksi tren harga {mata_uang} berdasarkan 3, 5, dan 7 hari terakhir: {tren_prediksi}")
-elif pilihan == 7:
-    hari = int(input("Bandingkan nilai tukar dalam berapa hari terakhir? : "))
-    daftar_mata_uang = ["USD", "EUR", "JPY", "MYR", "KRW", "CNY", "SGD"]
-    bandingkan_mata_uang(spreadsheet, daftar_mata_uang, hari)

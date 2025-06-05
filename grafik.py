@@ -158,6 +158,27 @@ def fitur_perbandingan_mata_uang(spreadsheet):
         arah = "naik" if h["Selisih"] > 0 else "turun" if h["Selisih"] < 0 else "tetap"
         print(f"{h['Kode']} ({h['Simbol']}) - Awal: {h['Simbol']}{h['Awal']:.2f}, Akhir: {h['Simbol']}{h['Akhir']:.2f}, "
               f"Rerata: {h['Simbol']}{h['Rerata']:.2f}, Selisih: {h['Simbol']}{h['Selisih']:.2f} ({arah})")
+        
+def prediksi_tren_multi_window(df, windows=[3,5,7]):
+    hasil_tren = []
+
+    for harga in windows:
+        harga_hari = pilih_hari_tren(harga)  
+        tren = deteksi_tren_sliding_window(harga_hari)  
+        hasil_tren.append(tren)
+
+    hitung = {"Uptrend":0, "Downtrend":0, "Sideways":0}
+    for t in hasil_tren:
+        hitung[t] += 1
+
+    max_jumlah = max(hitung.values())
+    tren_terbanyak = [k for k, v in hitung.items() if v == max_jumlah]
+
+    if len(tren_terbanyak) == 1:
+        return tren_terbanyak[0]
+    else:
+        return "Sideways"
+    
 #batas function
 
 #setup google sheet
@@ -188,8 +209,8 @@ tanggal_akhir = df["Tanggal"].max()
 #kode
 cls()
 
-print(f"Ingin cek apa? (1: Tren, 2: Harga {mata_uang}, 3: Cari Tanggal, 4: Deteksi Harga Ekstrem (Tertinggi dan Terendah), 5: Konversi Mata Uang, 6: Perbandingan Mata Uang)")
-pilihan = int(input("Masukkan pilihan (1/2/3/4/5/6) : "))
+print(f"Ingin cek apa? (1: Tren, 2: Harga {mata_uang}, 3: Cari Tanggal, 4: Deteksi Harga Ekstrem (Tertinggi dan Terendah), 5: Konversi Mata Uang, 6: Perbandingan Mata Uang, 7: Prediksi Arah Trend Sederhana)")
+pilihan = int(input("Masukkan pilihan (1/2/3/4/5/6/7) : "))
 if pilihan == 1:
     hari = int(input("Jumlah hari (3/7) : "))
     if hari not in [3, 7]:
@@ -259,5 +280,8 @@ elif pilihan == 5:
 
 elif pilihan == 6:
     fitur_perbandingan_mata_uang(spreadsheet)
-else:
+elif pilihan == 7:
+    tren_prediksi = prediksi_tren_multi_window(df)
+    print(f"Prediksi tren harga {mata_uang} berdasarkan 3, 5, dan 7 hari terakhir: {tren_prediksi}")
+else:    
     print("Pilihan tidak valid.")

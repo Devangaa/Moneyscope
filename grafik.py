@@ -44,8 +44,8 @@ def pilih_hari_tren(hari):
     tanggal_awal = tanggal_akhir - timedelta(days = hari-1)
     df_hari = df[df["Tanggal"] >= tanggal_awal].sort_values("Tanggal")
     harga_hari = df_hari["Harga Dolar"].tolist() 
-    return harga_hari
-
+ 
+ 
 def cari_tanggal(data, target_tanggal):
     left = 0
     right = len(data) - 1

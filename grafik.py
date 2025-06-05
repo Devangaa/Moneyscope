@@ -88,6 +88,48 @@ def konversi_rupiah_ke_mata_uang(jumlah_rupiah, kurs):
 def konversi_mata_uang_ke_rupiah(jumlah_mata_uang, kurs):
     return jumlah_mata_uang * kurs
 
+def bandingkan_mata_uang (spreadsheet, daftar_mata_uang, jumlah_hari):
+    hasil_perbandingan = []
+    tanggal_akhir_global = None
+
+    for kode in daftar_mata_uang:
+        try:
+            sheet = spreadsheet.worksheet(kode)
+            data = sheet.get_all_records()
+            df = pd.DataFrame(data)
+            df["Tanggal"] = pd.to_datetime(df["Tanggal"], dayfirst=True)
+            df["Harga Dolar"] = df["Harga Dolar"].astype(float)
+
+            tanggal_akhir = df["Tanggal"].max()
+            if tanggal_akhir_global is None or tanggal_akhir < tanggal_akhir_global:
+                tanggal_akhir_global = tanggal_akhir
+
+            tanggal_awal = tanggal_akhir - timedelta(days=jumlah_hari - 1)
+            df_terbaru = df[df["Tanggal"] >= tanggal_awal].sort_values("Tanggal")
+
+            if df_terbaru.empty:
+                print(f"Tidak ada data untuk {kode} dalam {jumlah_hari} hari terakhir.")
+                continue
+
+            harga_terakhir = df_terbaru["Harga Dolar"].iloc[-1]
+            harga_tinggi = df_terbaru["Harga Dolar"].max()
+            harga_rendah = df_terbaru["Harga Dolar"].min()
+
+            hasil_perbandingan.append({
+                "Mata Uang": kode,
+                "Tertinggi": harga_tinggi,
+                "Terendah": harga_rendah,
+                "Terbaru": harga_terakhir
+            })
+        except:
+            print(f"Gagal mengambil data untuk {kode}.")
+
+    hasil_perbandingan.sort(key=lambda x: x["Terbaru"], reverse=True)
+
+    print(f"\nPerbandingan Nilai Tukar dalam {jumlah_hari} Hari Terakhir (berdasarkan kurs per {tanggal_akhir_global.strftime('%d-%m-%Y')}):\n")
+    for h in hasil_perbandingan:
+        print(f"{h['Mata Uang']} - Tertinggi: Rp{h['Tertinggi']:.2f}, Terendah: Rp{h['Terendah']:.2f}, Terbaru: Rp{h['Terbaru']:.2f}")
+
 #batas function
 
 #setup google sheet
@@ -117,8 +159,8 @@ tanggal_akhir = df["Tanggal"].max()
 #kode
 cls()
 
-print(f"Ingin cek apa? (1: Tren, 2: Harga {mata_uang}, 3: Cari Tanggal, 4: Deteksi Harga Ekstrem (Tertinggi dan Terendah), 5: Konversi Mata Uang)")
-pilihan = int(input("Masukkan pilihan (1/2/3/4/5) : "))
+print(f"Ingin cek apa? (1: Tren, 2: Harga {mata_uang}, 3: Cari Tanggal, 4: Deteksi Harga Ekstrem (Tertinggi dan Terendah), 5: Konversi Mata Uang, 6: Perbandingan Mata Uang)")
+pilihan = int(input("Masukkan pilihan (1/2/3/4/5/6) : "))
 if pilihan == 1:
     hari = int(input("Jumlah hari (3/7) : "))
     if hari not in [3, 7]:
@@ -185,3 +227,8 @@ elif pilihan == 5:
             print("Input tidak valid.")
     else:
         print("Pilihan arah tidak valid.")
+
+elif pilihan == 6:
+    hari = int(input("Bandingkan nilai tukar dalam berapa hari terakhir? : "))
+    mata_uang = ["USD", "EUR", "JPY", "MYR", "KRW", "CNY", "SGD"]
+    bandingkan_mata_uang (spreadsheet, mata_uang, hari)

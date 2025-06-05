@@ -14,7 +14,6 @@ def deteksi_tren_sliding_window(data: list, window_size = 3):
     for i in range(len(data) - window_size + 1):
         start = data[i]
         end = data[i + window_size - 1]
-        
         if end > start:
             trend_count["up"] += 1
         elif end < start:
@@ -23,7 +22,6 @@ def deteksi_tren_sliding_window(data: list, window_size = 3):
             trend_count["sideways"] += 1
 
     trend_list = list(trend_count.items())
-
     n = len(trend_list)
     for i in range(n):
         for j in range(0, n - i - 1):
@@ -44,7 +42,7 @@ def pilih_hari_tren(hari):
     tanggal_awal = tanggal_akhir - timedelta(days = hari-1)
     df_hari = df[df["Tanggal"] >= tanggal_awal].sort_values("Tanggal")
     harga_hari = df_hari["Harga Dolar"].tolist() 
- 
+    return harga_hari
  
 def cari_tanggal(data, target_tanggal):
     left = 0
@@ -183,6 +181,7 @@ except:
 data = sheet.get_all_records()
 df = pd.DataFrame(data)
 df["Tanggal"] = pd.to_datetime(df["Tanggal"], dayfirst=True)
+df["Tanggal"] = df["Tanggal"].dt.date
 df["Harga Dolar"] = df["Harga Dolar"].astype(float)
 tanggal_akhir = df["Tanggal"].max()
 

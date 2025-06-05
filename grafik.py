@@ -14,7 +14,6 @@ def deteksi_tren_sliding_window(data: list, window_size = 3):
     for i in range(len(data) - window_size + 1):
         start = data[i]
         end = data[i + window_size - 1]
-        
         if end > start:
             trend_count["up"] += 1
         elif end < start:
@@ -23,7 +22,6 @@ def deteksi_tren_sliding_window(data: list, window_size = 3):
             trend_count["sideways"] += 1
 
     trend_list = list(trend_count.items())
-
     n = len(trend_list)
     for i in range(n):
         for j in range(0, n - i - 1):
@@ -44,7 +42,7 @@ def pilih_hari_tren(hari):
     tanggal_awal = tanggal_akhir - timedelta(days = hari-1)
     df_hari = df[df["Tanggal"] >= tanggal_awal].sort_values("Tanggal")
     harga_hari = df_hari["Harga Dolar"].tolist() 
- 
+    return harga_hari
  
 def cari_tanggal(data, target_tanggal):
     left = 0
@@ -88,6 +86,47 @@ def konversi_rupiah_ke_mata_uang(jumlah_rupiah, kurs):
 def konversi_mata_uang_ke_rupiah(jumlah_mata_uang, kurs):
     return jumlah_mata_uang * kurs
 
+def ambil_data_mata_uang(spreadsheet, kode):
+    try:
+        sheet = spreadsheet.worksheet(kode)
+        data = sheet.get_all_records()
+        df = pd.DataFrame(data)
+        df["Tanggal"] = pd.to_datetime(df["Tanggal"], dayfirst=True)
+        df["Harga Dolar"] = df["Harga Dolar"].astype(float)
+        return df
+    except Exception as e:
+        print(f"Gagal mengambil data untuk {kode}: {e}")
+        return None
+
+def fitur_perbandingan_mata_uang(spreadsheet):
+    hari = int(input("Bandingkan nilai tukar dalam berapa hari terakhir? : "))
+
+    jumlah_mata_uang = int(input("Mau bandingkan berapa mata uang? (2/3/4/5/6/7): "))
+    if jumlah_mata_uang not in [2, 3, 4, 5, 6, 7]:
+        print("Pilihan tidak valid. Silakan pilih antara 2 hingga 7 mata uang.")
+        return
+
+    mata_uang_dipilih = []
+    for i in range(jumlah_mata_uang):
+        kode = input(f"Masukkan kode mata uang ke-{i+1} (USD/EUR/JPY/MYR/KRW/CNY/SGD): ").upper()
+        mata_uang_dipilih.append(kode)
+
+    simbol_map = {
+        "USD": "$", "EUR": "€", "JPY": "¥", "MYR": "RM",
+        "KRW": "₩", "CNY": "¥", "SGD": "S$"
+    }
+
+    hasil_perbandingan = []
+    tanggal_akhir_global = None
+
+    for kode in mata_uang_dipilih:
+        df_temp = ambil_data_mata_uang(spreadsheet, kode)
+        if df_temp is None:
+            continue
+
+        tanggal_akhir = df_temp["Tanggal"].max()
+        if tanggal_akhir_global is None or tanggal_akhir < tanggal_akhir_global:
+            tanggal_akhir_global = tanggal_akhir
 def prediksi_tren_multi_window(df, windows=[3,5,7]):
     hasil_tren = []
 
@@ -134,34 +173,36 @@ def bandingkan_mata_uang (spreadsheet, daftar_mata_uang, jumlah_hari):
             if tanggal_akhir_global is None or tanggal_akhir < tanggal_akhir_global:
                 tanggal_akhir_global = tanggal_akhir
 
-            tanggal_awal = tanggal_akhir - timedelta(days=jumlah_hari - 1)
-            df_terbaru = df[df["Tanggal"] >= tanggal_awal].sort_values("Tanggal")
+        tanggal_awal = tanggal_akhir - timedelta(days=hari - 1)
+        df_hari = df_temp[df_temp["Tanggal"] >= tanggal_awal].sort_values("Tanggal")
 
-            if df_terbaru.empty:
-                print(f"Tidak ada data untuk {kode} dalam {jumlah_hari} hari terakhir.")
-                continue
+        if df_hari.empty:
+            print(f"Tidak ada data untuk {kode} dalam {hari} hari terakhir.")
+            continue
 
-            harga_terakhir = df_terbaru["Harga Dolar"].iloc[-1]
-            harga_tinggi = df_terbaru["Harga Dolar"].max()
-            harga_rendah = df_terbaru["Harga Dolar"].min()
+        harga_awal = df_hari["Harga Dolar"].iloc[0]
+        harga_akhir = df_hari["Harga Dolar"].iloc[-1]
+        harga_rata = df_hari["Harga Dolar"].mean()
+        selisih = harga_akhir - harga_awal
 
-            hasil_perbandingan.append({
-                "Mata Uang": kode,
-                "Tertinggi": harga_tinggi,
-                "Terendah": harga_rendah,
-                "Terbaru": harga_terakhir
-            })
-        except:
-            print(f"Gagal mengambil data untuk {kode}.")
+        hasil_perbandingan.append({
+            "Kode": kode,
+            "Simbol": simbol_map.get(kode, ""),
+            "Awal": harga_awal,
+            "Akhir": harga_akhir,
+            "Rerata": harga_rata,
+            "Selisih": selisih
+        })
 
-    hasil_perbandingan.sort(key=lambda x: x["Terbaru"], reverse=True)
+    if not hasil_perbandingan:
+        print("Tidak ada data yang bisa dibandingkan.")
+        return
 
-    print(f"\nPerbandingan Nilai Tukar dalam {jumlah_hari} Hari Terakhir (berdasarkan kurs per {tanggal_akhir_global.strftime('%d-%m-%Y')}):\n")
+    print(f"\n\U0001F4CA Perbandingan Nilai Tukar dalam {hari} Hari Terakhir (s.d. {tanggal_akhir_global.strftime('%d-%m-%Y')}):\n")
     for h in hasil_perbandingan:
-        kode = h['Mata Uang']
-        simbol = simbol_mata_uang.get(kode, "")
-        print(f"{kode} - Tertinggi: {simbol}{h['Tertinggi']:.2f}, Terendah: {simbol}{h['Terendah']:.2f}, Terbaru: {simbol}{h['Terbaru']:.2f}")
-
+        arah = "naik" if h["Selisih"] > 0 else "turun" if h["Selisih"] < 0 else "tetap"
+        print(f"{h['Kode']} ({h['Simbol']}) - Awal: {h['Simbol']}{h['Awal']:.2f}, Akhir: {h['Simbol']}{h['Akhir']:.2f}, "
+              f"Rerata: {h['Simbol']}{h['Rerata']:.2f}, Selisih: {h['Simbol']}{h['Selisih']:.2f} ({arah})")
 #batas function
 
 #setup google sheet
@@ -185,6 +226,7 @@ except:
 data = sheet.get_all_records()
 df = pd.DataFrame(data)
 df["Tanggal"] = pd.to_datetime(df["Tanggal"], dayfirst=True)
+df["Tanggal"] = df["Tanggal"].dt.date
 df["Harga Dolar"] = df["Harga Dolar"].astype(float)
 tanggal_akhir = df["Tanggal"].max()
 
@@ -260,6 +302,10 @@ elif pilihan == 5:
     else:
         print("Pilihan arah tidak valid.")
 elif pilihan == 6:
+    fitur_perbandingan_mata_uang(spreadsheet)
+else:
+    print("Pilihan tidak valid.")
+
     tren_prediksi = prediksi_tren_multi_window(df)
     print(f"Prediksi tren harga {mata_uang} berdasarkan 3, 5, dan 7 hari terakhir: {tren_prediksi}")
 elif pilihan == 7:

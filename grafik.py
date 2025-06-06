@@ -209,7 +209,7 @@ tanggal_akhir = df["Tanggal"].max()
 #kode
 cls()
 
-print(f"Ingin cek apa? (1: Tren, 2: Harga {mata_uang}, 3: Cari Tanggal, 4: Deteksi Harga Ekstrem (Tertinggi dan Terendah), 5: Konversi Mata Uang, 6: Perbandingan Mata Uang, 7: Prediksi Arah Trend Sederhana)")
+print(f"Ingin cek apa? \n1: Tren \n2: Harga {mata_uang} \n3: Cari Tanggal \n4: Deteksi Harga Ekstrem \n5: Konversi Mata Uang \n6: Perbandingan Mata Uang \n7: Prediksi Arah Trend Sederhana \n=====================================")
 pilihan = int(input("Masukkan pilihan (1/2/3/4/5/6/7) : "))
 if pilihan == 1:
     hari = int(input("Jumlah hari (3/7) : "))

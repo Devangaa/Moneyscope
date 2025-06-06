@@ -289,6 +289,7 @@ print(f"Ingin cek apa? \n1: Tren \n2: Harga {mata_uang} \n3: Cari Tanggal \n4: D
 pilihan = int(input("Masukkan pilihan (1/2/3/4/5/6/7) : "))
 
 if pilihan == 1:
+    cls()
     hari = int(input("Jumlah hari (3/7) : "))
     if hari not in [3, 7]:
         print("Pilihan tidak valid. Silakan pilih 3 atau 7.")
@@ -298,9 +299,11 @@ if pilihan == 1:
         print(f"Tren harga {mata_uang} dalam {hari} hari terakhir: {trend}")
 
 elif pilihan == 2:
+    cls()
     print(f"Harga {mata_uang} pada {tanggal_akhir.strftime('%d-%m-%Y')}: Rp{df[df['Tanggal'] == tanggal_akhir]['Harga Dolar'].values[0]}")
 
 elif pilihan == 3:
+    cls()
     tanggal_input = input("Masukkan tanggal (dd-mm-yyyy): ")
     try:
         target_tanggal = datetime.strptime(tanggal_input, "%d-%m-%Y")
@@ -321,6 +324,7 @@ elif pilihan == 3:
         print("Format tanggal tidak valid. Gunakan format dd-mm-yyyy.")
 
 elif pilihan == 4:
+    cls
     hari = int(input("Cek harga ekstrem dalam berapa hari terakhir? : "))
     tanggal_awal = tanggal_akhir - timedelta(days=hari - 1)
     df_hari = df[df["Tanggal"] >= tanggal_awal].sort_values("Tanggal")
@@ -335,6 +339,7 @@ elif pilihan == 4:
         print(f"Harga TERENDAH ({mata_uang}) : Rp{min_data[1]} pada {min_data[0].strftime('%d-%m-%Y')}")
 
 elif pilihan == 5:
+    cls
     print("Konversi:")
     print(f"1. Rupiah ke {mata_uang}")
     print(f"2. {mata_uang} ke Rupiah")
@@ -360,9 +365,11 @@ elif pilihan == 5:
         print("Pilihan arah tidak valid.")
 
 elif pilihan == 6:
+    cls()
     bandingkan_mata_uang(mata_uang)
 
 elif pilihan == 7:
+    cls()
     tren_prediksi = prediksi_tren_multi_window(df)
     print(f"Prediksi tren harga {mata_uang} berdasarkan 3, 5, dan 7 hari terakhir: {tren_prediksi}")
 else:    

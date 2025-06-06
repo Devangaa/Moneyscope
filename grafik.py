@@ -8,6 +8,142 @@ from datetime import datetime, timedelta
 def cls():
     os.system('cls')
 
+#Fitur no 1
+# Tren harga mata uang
+def deteksi_tren():
+    cls()
+    hari = int(input("Jumlah hari (3/7) : "))
+    if hari not in [3, 7]:
+        print("Pilihan tidak valid. Silakan pilih 3 atau 7.")
+    else:
+        harga_hari = pilih_hari(hari)
+        trend = deteksi_tren(harga_hari)
+        print(f"Tren harga {mata_uang} dalam {hari} hari terakhir: {trend}")
+
+#Fitur no 2
+# Harga mata uang hari ini
+def harga_hari_ini():
+    cls()
+    print(f"Harga {mata_uang} pada {tanggal_akhir.strftime('%d-%m-%Y')}: Rp{df[df['Tanggal'] == tanggal_akhir]['Harga Dolar'].values[0]}")
+
+#Fitur no 3
+# Mencari harga mata uang pada tanggal tertentu
+def cari_harga_tanggal():
+    cls()
+    tanggal_input = input("Masukkan tanggal (dd-mm-yyyy): ")
+    try:
+        target_tanggal = datetime.strptime(tanggal_input, "%d-%m-%Y")
+        
+        data_records = df.to_dict('records')
+        
+        for row in data_records:
+            row['Tanggal'] = pd.to_datetime(row['Tanggal'], dayfirst=True).to_pydatetime()
+
+        data_tanggal = cari_tanggal(data_records, target_tanggal)
+        
+        if data_tanggal:
+            harga = data_tanggal['Harga Dolar']
+            print(f"Harga {mata_uang} pada {target_tanggal.strftime('%d-%m-%Y')}: Rp{harga}")
+        else:
+            print("Tanggal tidak ditemukan dalam data.")
+    except ValueError:
+        print("Format tanggal tidak valid. Gunakan format dd-mm-yyyy.")
+
+#Fitur no 4
+# Mendeteksi harga ekstrem (tertinggi dan terendah) dalam rentang hari tertentu 
+def deteksi_harga_ekstrem():
+    cls
+    hari = int(input("Cek harga ekstrem dalam berapa hari terakhir? : "))
+    tanggal_awal = tanggal_akhir - timedelta(days=hari - 1)
+    df_hari = df[df["Tanggal"] >= tanggal_awal].sort_values("Tanggal")
+
+    if df_hari.empty:
+        print("Tidak ada data untuk rentang hari tersebut.")
+    else:
+        harga_list = list(zip(df_hari["Tanggal"], df_hari["Harga Dolar"]))
+        max_data, min_data = deteksi_harga_ekstrim(harga_list, 0, len(harga_list) - 1)
+
+        print(f"Harga TERTINGGI ({mata_uang}): Rp{max_data[1]} pada {max_data[0].strftime('%d-%m-%Y')}")
+        print(f"Harga TERENDAH ({mata_uang}) : Rp{min_data[1]} pada {min_data[0].strftime('%d-%m-%Y')}")
+
+#Fitur no 5
+# Konversi mata uang
+def konversi_mata_uang():
+    cls
+    print("Konversi:")
+    print(f"1. Rupiah ke {mata_uang}")
+    print(f"2. {mata_uang} ke Rupiah")
+    arah = input("Pilih arah konversi (1/2): ")
+
+    kurs_terbaru = df[df["Tanggal"] == tanggal_akhir]["Harga Dolar"].values[0]
+
+    if arah == "1":
+        try:
+            jumlah = float(input("Masukkan jumlah dalam Rupiah: "))
+            hasil = konversi_rupiah_ke_mata_uang(jumlah, kurs_terbaru)
+            print(f"Rp{jumlah:,.2f} = {hasil:,.2f} {mata_uang} (kurs {tanggal_akhir.strftime('%d-%m-%Y')})")
+        except:
+            print("Input tidak valid.")
+    elif arah == "2":
+        try:
+            jumlah = float(input(f"Masukkan jumlah dalam {mata_uang}: "))
+            hasil = konversi_mata_uang_ke_rupiah(jumlah, kurs_terbaru)
+            print(f"{jumlah:,.2f} {mata_uang} = Rp{hasil:,.2f} (kurs {tanggal_akhir.strftime('%d-%m-%Y')})")
+        except:
+            print("Input tidak valid.")
+    else:
+        print("Pilihan arah tidak valid.")
+
+#Fitur no 6
+# Perbandingan mata uang
+def bandingkan_mata_uang(uang):
+    cls()
+    
+    list_uang = ["USD", "EUR", "JPY", "MYR", "KRW", "CNY", "SGD"]
+    list_uang.remove(uang)
+    list_uang_jadi = "/".join(list_uang)
+    uang_pembanding = input(f"Masukkan mata uang yang ingin dibandingkan ({list_uang_jadi}): ").upper()
+    if uang_pembanding not in list_uang:
+        print("Mata uang tidak valid. Silakan pilih dari daftar yang tersedia.")
+        return
+    hari = int(input("Cek perbandingan dalam berapa hari terakhir? : "))
+    
+    list1, list2 = pilih_hari(hari), mata_uang_2(uang_pembanding,hari)
+    rata1, rata2 = avg_persentase_perubahan(persentase_perubahan(list1, 0, len(list1) - 1)), avg_persentase_perubahan(persentase_perubahan(list2, 0, len(list2) - 1))
+    tren1, tren_prediksi = deteksi_tren(list1), deteksi_tren(list2)
+    naik1, turun1 = naik_turun_max(list1)
+    naik2, turun2 = naik_turun_max(list2)
+    volatilitas1 = volatilitas(list1)
+    volatilitas2 = volatilitas(list2)
+    atas1, bawah1 = hari_naik_turun(list1)
+    atas2, bawah2 = hari_naik_turun(list2)
+    streakn1, streakt1 = streak_naik_turun(list1)
+    streakn2, streakt2 = streak_naik_turun(list2)
+    persentase_untung1, persentase_untung2 = persentase_hari_untung(list1), persentase_hari_untung(list2)
+
+    cls()
+    print(f"Perbandingan harga {mata_uang} dan {uang_pembanding} dalam {hari} hari terakhir:\n")
+    print("-" * 60)
+    print(f"{'Aspek':<30} | {mata_uang:^10} | {uang_pembanding:^10}")
+    print("-" * 60)
+    print(f"{'Rata-rata perubahan (%)':<30} | {rata1:^10.2f} | {rata2:^10.2f}")
+    print(f"{'Tren dominan':<30} | {tren1:^10} | {tren_prediksi:^10}")
+    print(f"{'Kenaikan max (%)':<30} | {naik1:^10.2f} | {naik2:^10.2f}")
+    print(f"{'Penurunan max (%)':<30} | {turun1:^10.2f} | {turun2:^10.2f}")
+    print(f"{'Volatilitas':<30} | {volatilitas1:^10.2f} | {volatilitas2:^10.2f}")
+    print(f"{'Jumlah hari naik':<30} | {atas1:^10} | {atas2:^10}")
+    print(f"{'Jumlah hari turun':<30} | {bawah1:^10} | {bawah2:^10}")
+    print(f"{'Durasi tren naik terpanjang':<30} | {streakn1:^10} | {streakn2:^10}")
+    print(f"{'Durasi tren turun terpanjang':<30} | {streakt1:^10} | {streakt2:^10}")
+    print(f"{'Persentase hari untung (%)':<30} | {persentase_untung1:^10.2f} | {persentase_untung2:^10.2f}")
+
+#Fitur no 7
+# Prediksi arah tren sederhana berdasarkan 3, 5, dan 7 hari terakhir
+def prediksi_tren():
+    cls()
+    tren_prediksi = prediksi_tren_multi_window(df)
+    print(f"Prediksi tren harga {mata_uang} berdasarkan 3, 5, dan 7 hari terakhir: {tren_prediksi}")
+
 def deteksi_tren(data: list, window_size = 3):
     trend_count = {"up": 0, "down": 0, "sideways": 0}
     
@@ -98,47 +234,7 @@ def ambil_data_mata_uang(spreadsheet, kode):
         print(f"Gagal mengambil data untuk {kode}: {e}")
         return None
 
-#fitur no 6
-def bandingkan_mata_uang(uang):
-    list_uang = ["USD", "EUR", "JPY", "MYR", "KRW", "CNY", "SGD"]
-    list_uang.remove(uang)
-    list_uang_jadi = "/".join(list_uang)
-    uang_pembanding = input(f"Masukkan mata uang yang ingin dibandingkan ({list_uang_jadi}): ").upper()
-    if uang_pembanding not in list_uang:
-        print("Mata uang tidak valid. Silakan pilih dari daftar yang tersedia.")
-        return
-    hari = int(input("Cek perbandingan dalam berapa hari terakhir? : "))
-    
-    list1, list2 = pilih_hari(hari), mata_uang_2(uang_pembanding,hari)
-    rata1, rata2 = avg_persentase_perubahan(persentase_perubahan(list1, 0, len(list1) - 1)), avg_persentase_perubahan(persentase_perubahan(list2, 0, len(list2) - 1))
-    tren1, tren_prediksi = deteksi_tren(list1), deteksi_tren(list2)
-    naik1, turun1 = naik_turun_max(list1)
-    naik2, turun2 = naik_turun_max(list2)
-    volatilitas1 = volatilitas(list1)
-    volatilitas2 = volatilitas(list2)
-    atas1, bawah1 = hari_naik_turun(list1)
-    atas2, bawah2 = hari_naik_turun(list2)
-    streakn1, streakt1 = streak_naik_turun(list1)
-    streakn2, streakt2 = streak_naik_turun(list2)
-    persentase_untung1, persentase_untung2 = persentase_hari_untung(list1), persentase_hari_untung(list2)
-
-    cls()
-    print(f"Perbandingan harga {mata_uang} dan {uang_pembanding} dalam {hari} hari terakhir:\n")
-    print("-" * 60)
-    print(f"{'Aspek':<30} | {mata_uang:^10} | {uang_pembanding:^10}")
-    print("-" * 60)
-    print(f"{'Rata-rata perubahan (%)':<30} | {rata1:^10.2f} | {rata2:^10.2f}")
-    print(f"{'Tren dominan':<30} | {tren1:^10} | {tren_prediksi:^10}")
-    print(f"{'Kenaikan max (%)':<30} | {naik1:^10.2f} | {naik2:^10.2f}")
-    print(f"{'Penurunan max (%)':<30} | {turun1:^10.2f} | {turun2:^10.2f}")
-    print(f"{'Volatilitas':<30} | {volatilitas1:^10.2f} | {volatilitas2:^10.2f}")
-    print(f"{'Jumlah hari naik':<30} | {atas1:^10} | {atas2:^10}")
-    print(f"{'Jumlah hari turun':<30} | {bawah1:^10} | {bawah2:^10}")
-    print(f"{'Durasi tren naik terpanjang':<30} | {streakn1:^10} | {streakn2:^10}")
-    print(f"{'Durasi tren turun terpanjang':<30} | {streakt1:^10} | {streakt2:^10}")
-    print(f"{'Persentase hari untung (%)':<30} | {persentase_untung1:^10.2f} | {persentase_untung2:^10.2f}")
-
-
+#fungsi no 6
 def mata_uang_2(mata_uang, hari):
     sheet2 = spreadsheet.worksheet(mata_uang)
 
@@ -292,96 +388,33 @@ print(f"Ingin cek apa? \n1: Tren \n2: Harga {mata_uang} \n3: Cari Tanggal \n4: D
 pilihan = int(input("Masukkan pilihan (1/2/3/4/5/6/7) : "))
 
 if pilihan == 1:
-    cls()
-    hari = int(input("Jumlah hari (3/7) : "))
-    if hari not in [3, 7]:
-        print("Pilihan tidak valid. Silakan pilih 3 atau 7.")
-    else:
-        harga_hari = pilih_hari(hari)
-        trend = deteksi_tren(harga_hari)
-        print(f"Tren harga {mata_uang} dalam {hari} hari terakhir: {trend}")
+    deteksi_tren()
     akhir = input("\nTekan Enter untuk keluar...")
 
 elif pilihan == 2:
-    cls()
-    print(f"Harga {mata_uang} pada {tanggal_akhir.strftime('%d-%m-%Y')}: Rp{df[df['Tanggal'] == tanggal_akhir]['Harga Dolar'].values[0]}")
+    harga_hari_ini()
     akhir = input("\nTekan Enter untuk keluar...")
 
 elif pilihan == 3:
-    cls()
-    tanggal_input = input("Masukkan tanggal (dd-mm-yyyy): ")
-    try:
-        target_tanggal = datetime.strptime(tanggal_input, "%d-%m-%Y")
-        
-        data_records = df.to_dict('records')
-        
-        for row in data_records:
-            row['Tanggal'] = pd.to_datetime(row['Tanggal'], dayfirst=True).to_pydatetime()
-
-        data_tanggal = cari_tanggal(data_records, target_tanggal)
-        
-        if data_tanggal:
-            harga = data_tanggal['Harga Dolar']
-            print(f"Harga {mata_uang} pada {target_tanggal.strftime('%d-%m-%Y')}: Rp{harga}")
-        else:
-            print("Tanggal tidak ditemukan dalam data.")
-    except ValueError:
-        print("Format tanggal tidak valid. Gunakan format dd-mm-yyyy.")
+    cari_harga_tanggal()
     akhir = input("\nTekan Enter untuk keluar...")
 
 elif pilihan == 4:
-    cls
-    hari = int(input("Cek harga ekstrem dalam berapa hari terakhir? : "))
-    tanggal_awal = tanggal_akhir - timedelta(days=hari - 1)
-    df_hari = df[df["Tanggal"] >= tanggal_awal].sort_values("Tanggal")
-
-    if df_hari.empty:
-        print("Tidak ada data untuk rentang hari tersebut.")
-    else:
-        harga_list = list(zip(df_hari["Tanggal"], df_hari["Harga Dolar"]))
-        max_data, min_data = deteksi_harga_ekstrim(harga_list, 0, len(harga_list) - 1)
-
-        print(f"Harga TERTINGGI ({mata_uang}): Rp{max_data[1]} pada {max_data[0].strftime('%d-%m-%Y')}")
-        print(f"Harga TERENDAH ({mata_uang}) : Rp{min_data[1]} pada {min_data[0].strftime('%d-%m-%Y')}")
+    deteksi_harga_ekstrem()
     akhir = input("\nTekan Enter untuk keluar...")
 
 elif pilihan == 5:
-    cls
-    print("Konversi:")
-    print(f"1. Rupiah ke {mata_uang}")
-    print(f"2. {mata_uang} ke Rupiah")
-    arah = input("Pilih arah konversi (1/2): ")
-
-    kurs_terbaru = df[df["Tanggal"] == tanggal_akhir]["Harga Dolar"].values[0]
-
-    if arah == "1":
-        try:
-            jumlah = float(input("Masukkan jumlah dalam Rupiah: "))
-            hasil = konversi_rupiah_ke_mata_uang(jumlah, kurs_terbaru)
-            print(f"Rp{jumlah:,.2f} = {hasil:,.2f} {mata_uang} (kurs {tanggal_akhir.strftime('%d-%m-%Y')})")
-        except:
-            print("Input tidak valid.")
-    elif arah == "2":
-        try:
-            jumlah = float(input(f"Masukkan jumlah dalam {mata_uang}: "))
-            hasil = konversi_mata_uang_ke_rupiah(jumlah, kurs_terbaru)
-            print(f"{jumlah:,.2f} {mata_uang} = Rp{hasil:,.2f} (kurs {tanggal_akhir.strftime('%d-%m-%Y')})")
-        except:
-            print("Input tidak valid.")
-    else:
-        print("Pilihan arah tidak valid.")
+    konversi_mata_uang()
     akhir = input("\nTekan Enter untuk keluar...")
 
 elif pilihan == 6:
-    cls()
     bandingkan_mata_uang(mata_uang)
     akhir = input("\nTekan Enter untuk keluar...")
 
 elif pilihan == 7:
-    cls()
-    tren_prediksi = prediksi_tren_multi_window(df)
-    print(f"Prediksi tren harga {mata_uang} berdasarkan 3, 5, dan 7 hari terakhir: {tren_prediksi}")
+    prediksi_tren()
     akhir = input("\nTekan Enter untuk keluar...")
+
 else:    
     print("Pilihan tidak valid.")
     akhir = input("\nTekan Enter untuk keluar...")

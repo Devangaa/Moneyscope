@@ -16,7 +16,7 @@ def deteksi_tren():
     if hari not in [3, 7]:
         print("Pilihan tidak valid. Silakan pilih 3 atau 7.")
     else:
-        harga_hari = pilih_hari(hari)
+        harga_hari = pilih_hari_default(hari)
         trend = deteksi_tren(harga_hari)
         print(f"Tren harga {mata_uang} dalam {hari} hari terakhir: {trend}")
 
@@ -108,7 +108,7 @@ def bandingkan_mata_uang(uang):
         return
     hari = int(input("Cek perbandingan dalam berapa hari terakhir? : "))
     
-    list1, list2 = pilih_hari(hari), mata_uang_2(uang_pembanding,hari)
+    list1, list2 = pilih_hari_default(hari), mata_uang_2(uang_pembanding,hari)
     rata1, rata2 = avg_persentase_perubahan(persentase_perubahan(list1, 0, len(list1) - 1)), avg_persentase_perubahan(persentase_perubahan(list2, 0, len(list2) - 1))
     tren1, tren_prediksi = deteksi_tren(list1), deteksi_tren(list2)
     naik1, turun1 = naik_turun_max(list1)
@@ -122,9 +122,61 @@ def bandingkan_mata_uang(uang):
     persentase_untung1, persentase_untung2 = persentase_hari_untung(list1), persentase_hari_untung(list2)
 
     cls()
-    print(f"Perbandingan harga {mata_uang} dan {uang_pembanding} dalam {hari} hari terakhir:\n")
+    print(f"Perbandingan {mata_uang} dan {uang_pembanding} dalam {hari} hari terakhir:\n")
     print("-" * 60)
     print(f"{'Aspek':<30} | {mata_uang:^10} | {uang_pembanding:^10}")
+    print("-" * 60)
+    print(f"{'Rata-rata perubahan (%)':<30} | {rata1:^10.2f} | {rata2:^10.2f}")
+    print(f"{'Tren dominan':<30} | {tren1:^10} | {tren_prediksi:^10}")
+    print(f"{'Kenaikan max (%)':<30} | {naik1:^10.2f} | {naik2:^10.2f}")
+    print(f"{'Penurunan max (%)':<30} | {turun1:^10.2f} | {turun2:^10.2f}")
+    print(f"{'Volatilitas':<30} | {volatilitas1:^10.2f} | {volatilitas2:^10.2f}")
+    print(f"{'Jumlah hari naik':<30} | {atas1:^10} | {atas2:^10}")
+    print(f"{'Jumlah hari turun':<30} | {bawah1:^10} | {bawah2:^10}")
+    print(f"{'Durasi tren naik terpanjang':<30} | {streakn1:^10} | {streakn2:^10}")
+    print(f"{'Durasi tren turun terpanjang':<30} | {streakt1:^10} | {streakt2:^10}")
+    print(f"{'Persentase hari untung (%)':<30} | {persentase_untung1:^10.2f} | {persentase_untung2:^10.2f}")
+
+#Fitur no 7
+# Perbandingan rentang waktu berbeda
+def bandingkan_rentang_waktu():
+    cls()
+    awal1, batas1 = input("Masukkan tanggal awal dan batas pertama (dd-mm-yyyy, dd-mm-yyyy): ").split(", ")
+    try:
+        awal1 = datetime.strptime(awal1, "%d-%m-%Y").date()
+        batas1 = datetime.strptime(batas1, "%d-%m-%Y").date()
+    except ValueError:
+        print("Format tanggal tidak valid. Gunakan format dd-mm-yyyy.")
+        return
+    awal2, batas2 = input("Masukkan tanggal awal dan batas kedua (dd-mm-yyyy, dd-mm-yyyy): ").split(", ")
+    try:
+        awal2 = datetime.strptime(awal2, "%d-%m-%Y").date()
+        batas2 = datetime.strptime(batas2, "%d-%m-%Y").date()
+
+        if awal1 > batas1 or awal2 > batas2:
+            print("Tanggal awal tidak boleh lebih besar dari tanggal batas.")
+            return
+    except ValueError:
+        print("Format tanggal tidak valid. Gunakan format dd-mm-yyyy.")
+        return
+    
+    list1, list2 = pilih_hari_custom(awal1, batas1), pilih_hari_custom(awal2, batas2)
+    rata1, rata2 = avg_persentase_perubahan(persentase_perubahan(list1, 0, len(list1) - 1)), avg_persentase_perubahan(persentase_perubahan(list2, 0, len(list2) - 1))
+    tren1, tren_prediksi = deteksi_tren(list1), deteksi_tren(list2)
+    naik1, turun1 = naik_turun_max(list1)
+    naik2, turun2 = naik_turun_max(list2)
+    volatilitas1 = volatilitas(list1)
+    volatilitas2 = volatilitas(list2)
+    atas1, bawah1 = hari_naik_turun(list1)
+    atas2, bawah2 = hari_naik_turun(list2)
+    streakn1, streakt1 = streak_naik_turun(list1)
+    streakn2, streakt2 = streak_naik_turun(list2)
+    persentase_untung1, persentase_untung2 = persentase_hari_untung(list1), persentase_hari_untung(list2)
+
+    cls()
+    print(f"Perbandingan {mata_uang} dalam rentang waktu {awal1.strftime('%d-%m-%Y')} s/d {batas1.strftime('%d-%m-%Y')} dengan {awal2.strftime('%d-%m-%Y')} s/d {batas2.strftime('%d-%m-%Y')}:\n")
+    print("-" * 60)
+    print(f"{'Aspek':<30} | {'Rentang 1':^10} | {'Rentang 2':^10}")
     print("-" * 60)
     print(f"{'Rata-rata perubahan (%)':<30} | {rata1:^10.2f} | {rata2:^10.2f}")
     print(f"{'Tren dominan':<30} | {tren1:^10} | {tren_prediksi:^10}")
@@ -174,12 +226,17 @@ def deteksi_tren(data: list, window_size = 3):
         else:
             return "Sideways"
 
-def pilih_hari(hari):
+def pilih_hari_default(hari):
     tanggal_awal = tanggal_akhir - timedelta(days = hari-1)
     df_hari = df[df["Tanggal"] >= tanggal_awal].sort_values("Tanggal")
     harga_hari = df_hari["Harga Dolar"].tolist() 
     return harga_hari
- 
+
+def pilih_hari_custom(tanggal_awal, tanggal_akhir):
+    df_hari = df[(df["Tanggal"] >= tanggal_awal) & (df["Tanggal"] <= tanggal_akhir)].sort_values("Tanggal")
+    harga_hari = df_hari["Harga Dolar"].tolist() 
+    return harga_hari
+
 def cari_tanggal(data, target_tanggal):
     left = 0
     right = len(data) - 1
@@ -338,7 +395,7 @@ def prediksi_tren_multi_window(df, windows=[3,5,7]):
     hasil_tren = []
 
     for harga in windows:
-        harga_hari = pilih_hari(harga)  
+        harga_hari = pilih_hari_default(harga)  
         tren = deteksi_tren(harga_hari)  
         hasil_tren.append(tren)
 
@@ -363,11 +420,9 @@ client = gspread.authorize(creds)
 
 #ambil data dari sheet
 cls()
-
 spreadsheet = client.open_by_key("1mpPFKqyTTugKHharPyyC0UpbG7p3xRxElNpty4zFZdM")
 
 mata_uang = input("Pilih mata uang (USD/EUR/JPY/MYR/KRW/CNY/SGD): ").upper()
-
 try:
     sheet = spreadsheet.worksheet(mata_uang)
 except:
@@ -384,7 +439,7 @@ tanggal_akhir = df["Tanggal"].max()
 #kode
 cls()
 
-print(f"Ingin cek apa? \n1: Tren \n2: Harga {mata_uang} \n3: Cari Tanggal \n4: Deteksi Harga Ekstrem \n5: Konversi Mata Uang \n6: Perbandingan Mata Uang \n7: Prediksi Arah Trend Sederhana \n=====================================")
+print(f"Ingin cek apa? \n1: Tren \n2: Harga {mata_uang} \n3: Cari Tanggal \n4: Deteksi Harga Ekstrem \n5: Konversi Mata Uang \n6: Perbandingan Mata Uang \n7: Perbandingan Rentang Waktu Berbeda  \n8: Prediksi Arah Trend Sederhana \n=====================================")
 pilihan = int(input("Masukkan pilihan (1/2/3/4/5/6/7) : "))
 
 if pilihan == 1:
@@ -412,6 +467,10 @@ elif pilihan == 6:
     akhir = input("\nTekan Enter untuk keluar...")
 
 elif pilihan == 7:
+    bandingkan_rentang_waktu()
+    akhir = input("\nTekan Enter untuk keluar...")
+
+elif pilihan == 8:
     prediksi_tren()
     akhir = input("\nTekan Enter untuk keluar...")
 

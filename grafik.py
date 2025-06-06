@@ -189,7 +189,7 @@ def bandingkan_rentang_waktu():
     print(f"{'Durasi tren turun terpanjang':<30} | {streakt1:^10} | {streakt2:^10}")
     print(f"{'Persentase hari untung (%)':<30} | {persentase_untung1:^10.2f} | {persentase_untung2:^10.2f}")
 
-#Fitur no 7
+#Fitur no 8
 # Prediksi arah tren sederhana berdasarkan 3, 5, dan 7 hari terakhir
 def prediksi_tren():
     cls()

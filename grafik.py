@@ -121,14 +121,17 @@ def bandingkan_mata_uang(uang):
     streakn1, streakt1 = streak_naik_turun(list1)
     streakn2, streakt2 = streak_naik_turun(list2)
     persentase_untung1, persentase_untung2 = persentase_hari_untung(list1), persentase_hari_untung(list2)
+
+    cls()
     print(f"Perbandingan harga {mata_uang} dan {uang_pembanding} dalam {hari} hari terakhir:\n")
+    print("-" * 60)
     print(f"{'Aspek':<30} | {mata_uang:^10} | {uang_pembanding:^10}")
     print("-" * 60)
     print(f"{'Rata-rata perubahan (%)':<30} | {rata1:^10.2f} | {rata2:^10.2f}")
-    print(f"{'Tren dominan (prediksi)':<30} | {tren1:^10} | {tren_prediksi:^10}")
+    print(f"{'Tren dominan':<30} | {tren1:^10} | {tren_prediksi:^10}")
     print(f"{'Kenaikan max (%)':<30} | {naik1:^10.2f} | {naik2:^10.2f}")
     print(f"{'Penurunan max (%)':<30} | {turun1:^10.2f} | {turun2:^10.2f}")
-    print(f"{'Volatilitas (std dev)':<30} | {volatilitas1:^10.2f} | {volatilitas2:^10.2f}")
+    print(f"{'Volatilitas':<30} | {volatilitas1:^10.2f} | {volatilitas2:^10.2f}")
     print(f"{'Jumlah hari naik':<30} | {atas1:^10} | {atas2:^10}")
     print(f"{'Jumlah hari turun':<30} | {bawah1:^10} | {bawah2:^10}")
     print(f"{'Durasi tren naik terpanjang':<30} | {streakn1:^10} | {streakn2:^10}")
@@ -297,10 +300,12 @@ if pilihan == 1:
         harga_hari = pilih_hari(hari)
         trend = deteksi_tren(harga_hari)
         print(f"Tren harga {mata_uang} dalam {hari} hari terakhir: {trend}")
+    akhir = input("\nTekan Enter untuk keluar...")
 
 elif pilihan == 2:
     cls()
     print(f"Harga {mata_uang} pada {tanggal_akhir.strftime('%d-%m-%Y')}: Rp{df[df['Tanggal'] == tanggal_akhir]['Harga Dolar'].values[0]}")
+    akhir = input("\nTekan Enter untuk keluar...")
 
 elif pilihan == 3:
     cls()
@@ -322,6 +327,7 @@ elif pilihan == 3:
             print("Tanggal tidak ditemukan dalam data.")
     except ValueError:
         print("Format tanggal tidak valid. Gunakan format dd-mm-yyyy.")
+    akhir = input("\nTekan Enter untuk keluar...")
 
 elif pilihan == 4:
     cls
@@ -337,6 +343,7 @@ elif pilihan == 4:
 
         print(f"Harga TERTINGGI ({mata_uang}): Rp{max_data[1]} pada {max_data[0].strftime('%d-%m-%Y')}")
         print(f"Harga TERENDAH ({mata_uang}) : Rp{min_data[1]} pada {min_data[0].strftime('%d-%m-%Y')}")
+    akhir = input("\nTekan Enter untuk keluar...")
 
 elif pilihan == 5:
     cls
@@ -363,14 +370,18 @@ elif pilihan == 5:
             print("Input tidak valid.")
     else:
         print("Pilihan arah tidak valid.")
+    akhir = input("\nTekan Enter untuk keluar...")
 
 elif pilihan == 6:
     cls()
     bandingkan_mata_uang(mata_uang)
+    akhir = input("\nTekan Enter untuk keluar...")
 
 elif pilihan == 7:
     cls()
     tren_prediksi = prediksi_tren_multi_window(df)
     print(f"Prediksi tren harga {mata_uang} berdasarkan 3, 5, dan 7 hari terakhir: {tren_prediksi}")
+    akhir = input("\nTekan Enter untuk keluar...")
 else:    
     print("Pilihan tidak valid.")
+    akhir = input("\nTekan Enter untuk keluar...")

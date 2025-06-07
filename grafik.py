@@ -10,7 +10,7 @@ def cls():
 
 #Fitur no 1
 # Tren harga mata uang
-def deteksi_tren():
+def fitur_deteksi_tren():
     cls()
     hari = int(input("Jumlah hari (3/7) : "))
     if hari not in [3, 7]:
@@ -443,7 +443,7 @@ print(f"Ingin cek apa? \n1: Tren \n2: Harga {mata_uang} \n3: Cari Tanggal \n4: D
 pilihan = int(input("Masukkan pilihan (1/2/3/4/5/6/7) : "))
 
 if pilihan == 1:
-    deteksi_tren()
+    fitur_deteksi_tren()
     akhir = input("\nTekan Enter untuk keluar...")
 
 elif pilihan == 2:

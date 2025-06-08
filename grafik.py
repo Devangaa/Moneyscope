@@ -189,7 +189,7 @@ def bandingkan_rentang_waktu():
     print(f"{'Durasi tren turun terpanjang':<30} | {streakt1:^10} | {streakt2:^10}")
     print(f"{'Persentase hari untung (%)':<30} | {persentase_untung1:^10.2f} | {persentase_untung2:^10.2f}")
 
-#Fitur no 7
+#Fitur no 8
 # Prediksi arah tren sederhana berdasarkan 3, 5, dan 7 hari terakhir
 def prediksi_tren():
     cls()
@@ -225,6 +225,40 @@ def deteksi_tren(data: list, window_size = 3):
             return "Downtrend"
         else:
             return "Sideways"
+
+#Fitur no 9
+# Fungsi untuk menghitung potensi investasi
+def potensi_investasi():
+    cls()
+    data = pilih_hari_default(365)
+    expected_return = avg_persentase_perubahan(persentase_perubahan(data, 0, len(data) - 1))
+    volatil = volatilitas(data)
+    
+    sheet2 = spreadsheet.worksheet("SKBA")
+    data2 = sheet2.get_all_records()
+    df2 = pd.DataFrame(data2)
+    df2["suku bunga"] = df2["suku bunga"].astype(float)
+
+    suku_bunga = (df2[df2["mata uang"] == mata_uang]["suku bunga"].values[0])/100
+    sharperatio = sharpe_ratio(expected_return, suku_bunga, volatil)
+    ird = interest_rate_difference(suku_bunga)
+
+    potensi = ((expected_return * 0.35) + (volatil * 0.25) + (sharperatio * 0.25) + (ird * 0.15)) * 100
+    print(f"Potensi investasi untuk {mata_uang} dalam 1 tahun terakhir: {potensi:.2f}%")
+
+def sharpe_ratio(expected_return, suku_bunga, volatil):
+    if volatil == 0:
+        return 0
+    return (expected_return - suku_bunga) / volatil
+
+def interest_rate_difference(suku_bunga):
+    sheet3 = spreadsheet.worksheet("SKBA")
+    data3 = sheet3.get_all_records()
+    df3 = pd.DataFrame(data3)
+    df3["suku bunga"] = df3["suku bunga"].astype(float)
+
+    suku_idr = df3[df3["mata uang"] == "IDR"]["suku bunga"].values[0] / 100
+    return suku_bunga - suku_idr 
 
 def pilih_hari_default(hari):
     tanggal_awal = tanggal_akhir - timedelta(days = hari-1)
@@ -439,8 +473,8 @@ tanggal_akhir = df["Tanggal"].max()
 #kode
 cls()
 
-print(f"Ingin cek apa? \n1: Tren \n2: Harga {mata_uang} \n3: Cari Tanggal \n4: Deteksi Harga Ekstrem \n5: Konversi Mata Uang \n6: Perbandingan Mata Uang \n7: Perbandingan Rentang Waktu Berbeda  \n8: Prediksi Arah Trend Sederhana \n=====================================")
-pilihan = int(input("Masukkan pilihan (1/2/3/4/5/6/7) : "))
+print(f"Ingin cek apa? \n1: Tren \n2: Harga {mata_uang} \n3: Cari Tanggal \n4: Deteksi Harga Ekstrem \n5: Konversi Mata Uang \n6: Perbandingan Mata Uang \n7: Perbandingan Rentang Waktu Berbeda  \n8: Prediksi Arah Trend Sederhana \n9: Potensi Investasi \n=====================================")
+pilihan = int(input("Masukkan pilihan (1/2/3/4/5/6/7/8/9) : "))
 
 if pilihan == 1:
     fitur_deteksi_tren()
@@ -472,6 +506,10 @@ elif pilihan == 7:
 
 elif pilihan == 8:
     prediksi_tren()
+    akhir = input("\nTekan Enter untuk keluar...")
+
+elif pilihan == 9:
+    potensi_investasi()
     akhir = input("\nTekan Enter untuk keluar...")
 
 else:    

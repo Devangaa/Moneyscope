@@ -445,6 +445,80 @@ def prediksi_tren_multi_window(df, windows=[3,5,7]):
     else:
         return "Sideways"
 
+# FITUR NO 10: Diversifikasi Portofolio (dengan algoritma Knapsack)
+def diversifikasi_portofolio():
+    cls()
+    try:
+        modal = int(input("Masukkan total modal dalam Rupiah (contoh: 100000000): "))
+    except:
+        print("Input modal tidak valid.")
+        return
+
+    mata_uang_list = ["USD", "EUR", "JPY", "MYR", "KRW", "CNY", "SGD"]
+    nilai = []  # expected return
+    biaya = []  # kurs saat ini
+    nama_terpilih = []
+
+    for mata in mata_uang_list:
+        try:
+            df_temp = ambil_data_mata_uang(spreadsheet, mata)
+            if df_temp is None or df_temp.empty:
+                continue
+
+            df_temp = df_temp.sort_values("Tanggal")
+            tanggal_akhir_temp = df_temp["Tanggal"].max()
+            tanggal_awal = tanggal_akhir_temp - timedelta(days=29)
+            df_30 = df_temp[df_temp["Tanggal"] >= tanggal_awal]
+            harga = df_30["Harga Dolar"].tolist()
+
+            if len(harga) < 2:
+                continue
+
+            perubahan = [(harga[i+1] - harga[i]) / harga[i] for i in range(len(harga)-1)]
+            expected_return = sum(perubahan) / len(perubahan)
+            kurs_terbaru = df_temp[df_temp["Tanggal"] == tanggal_akhir_temp]["Harga Dolar"].values[0]
+
+            nilai.append(expected_return)
+            biaya.append(int(kurs_terbaru))
+            nama_terpilih.append(mata)
+
+        except Exception as e:
+            print(f"Gagal proses {mata}: {e}")
+            continue
+
+    n = len(nilai)
+    W = int(modal)
+    dp = [[0] * (W + 1) for _ in range(n + 1)]
+
+    for i in range(1, n + 1):
+        for w in range(W + 1):
+            berat = biaya[i - 1]
+            if berat <= w:
+                dp[i][w] = max(dp[i - 1][w], nilai[i - 1] + dp[i - 1][w - berat])
+            else:
+                dp[i][w] = dp[i - 1][w]
+
+    def ambil_item(dp, weight, value, items, W):
+        result = []
+        i = len(items)
+        w = W
+        while i > 0 and w >= 0:
+            if dp[i][w] != dp[i-1][w]:
+                result.append(items[i-1])
+                w -= weight[i-1]
+            i -= 1
+        return result[::-1]
+
+    terpilih = ambil_item(dp, biaya, nilai, nama_terpilih, W)
+
+    print(f"\nDiversifikasi terbaik dengan modal Rp{modal:,}:")
+    if not terpilih:
+        print("Tidak ada mata uang yang terpilih.")
+    else:
+        for mata in terpilih:
+            idx = nama_terpilih.index(mata)
+            print(f"- {mata}: Expected return {nilai[idx]*100:.2f}% | Kurs saat ini Rp{biaya[idx]:,.2f}")
+
 #batas function
 
 #setup google sheet
@@ -473,8 +547,8 @@ tanggal_akhir = df["Tanggal"].max()
 #kode
 cls()
 
-print(f"Ingin cek apa? \n1: Tren \n2: Harga {mata_uang} \n3: Cari Tanggal \n4: Deteksi Harga Ekstrem \n5: Konversi Mata Uang \n6: Perbandingan Mata Uang \n7: Perbandingan Rentang Waktu Berbeda  \n8: Prediksi Arah Trend Sederhana \n9: Potensi Investasi \n=====================================")
-pilihan = int(input("Masukkan pilihan (1/2/3/4/5/6/7/8/9) : "))
+print(f"Ingin cek apa? \n1: Tren \n2: Harga {mata_uang} \n3: Cari Tanggal \n4: Deteksi Harga Ekstrem \n5: Konversi Mata Uang \n6: Perbandingan Mata Uang \n7: Perbandingan Rentang Waktu Berbeda  \n8: Prediksi Arah Trend Sederhana \n9: Potensi Investasi \n10: Diversifikasi Portofolio \n=====================================")
+pilihan = int(input("Masukkan pilihan (1/2/3/4/5/6/7/8/9/10) : "))
 
 if pilihan == 1:
     fitur_deteksi_tren()
@@ -510,6 +584,10 @@ elif pilihan == 8:
 
 elif pilihan == 9:
     potensi_investasi()
+    akhir = input("\nTekan Enter untuk keluar...")
+    
+elif pilihan == 10:
+    diversifikasi_portofolio()
     akhir = input("\nTekan Enter untuk keluar...")
 
 else:    

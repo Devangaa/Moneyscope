@@ -141,7 +141,7 @@ def bandingkan_mata_uang(uang):
 # Perbandingan rentang waktu berbeda
 def bandingkan_rentang_waktu():
     cls()
-    awal1, batas1 = input("Masukkan tanggal awal dan batas pertama (dd-mm-yyyy, dd-mm-yyyy): ").split(", ")
+    awal1, batas1 = input("Masukkan tanggal awal dan batas pertama (dd-mm-yyyy, dd-mm-yyyy): ").split(",")
     try:
         awal1 = datetime.strptime(awal1, "%d-%m-%Y").date()
         batas1 = datetime.strptime(batas1, "%d-%m-%Y").date()
@@ -196,6 +196,101 @@ def prediksi_tren():
     tren_prediksi = prediksi_tren_multi_window(df)
     print(f"Prediksi tren harga {mata_uang} berdasarkan 3, 5, dan 7 hari terakhir: {tren_prediksi}")
 
+#Fitur no 9
+# Fungsi untuk menghitung potensi investasi
+def potensi_investasi():
+    cls()
+    data = pilih_hari_default(365)
+    expected_return = avg_persentase_perubahan(persentase_perubahan(data, 0, len(data) - 1))
+    volatil = volatilitas(data)
+    
+    sheet2 = spreadsheet.worksheet("SKBA")
+    data2 = sheet2.get_all_records()
+    df2 = pd.DataFrame(data2)
+    df2["suku bunga"] = df2["suku bunga"].astype(float)
+
+    suku_bunga = (df2[df2["mata uang"] == mata_uang]["suku bunga"].values[0])/100
+    sharperatio = sharpe_ratio(expected_return, suku_bunga, volatil)
+    ird = interest_rate_difference(suku_bunga)
+
+    potensi = ((expected_return * 0.35) + (volatil * 0.25) + (sharperatio * 0.25) + (ird * 0.15)) * 100
+    print(f"Potensi investasi untuk {mata_uang} dalam 1 tahun terakhir: {potensi:.2f}%")
+
+#Fitur no 10 
+# Diversifikasi Portofolio 
+def diversifikasi_portofolio():
+    cls()
+    try:
+        modal = int(input("Masukkan total modal dalam Rupiah (contoh: 100000000): "))
+    except:
+        print("Input modal tidak valid.")
+        return
+
+    mata_uang_list = ["USD", "EUR", "JPY", "MYR", "KRW", "CNY", "SGD"]
+    nilai = [] 
+    biaya = [] 
+    nama_terpilih = []
+
+    for mata in mata_uang_list:
+        try:
+            df_temp = ambil_data_mata_uang(spreadsheet, mata)
+            if df_temp is None or df_temp.empty:
+                continue
+
+            df_temp = df_temp.sort_values("Tanggal")
+            tanggal_akhir_temp = df_temp["Tanggal"].max()
+            tanggal_awal = tanggal_akhir_temp - timedelta(days=29)
+            df_30 = df_temp[df_temp["Tanggal"] >= tanggal_awal]
+            harga = df_30["Harga Dolar"].tolist()
+
+            if len(harga) < 2:
+                continue
+
+            perubahan = [(harga[i+1] - harga[i]) / harga[i] for i in range(len(harga)-1)]
+            expected_return = sum(perubahan) / len(perubahan)
+            kurs_terbaru = df_temp[df_temp["Tanggal"] == tanggal_akhir_temp]["Harga Dolar"].values[0]
+
+            nilai.append(expected_return)
+            biaya.append(int(kurs_terbaru))
+            nama_terpilih.append(mata)
+
+        except Exception as e:
+            print(f"Gagal proses {mata}: {e}")
+            continue
+
+    n = len(nilai)
+    W = int(modal)
+    dp = [[0] * (W + 1) for _ in range(n + 1)]
+
+    for i in range(1, n + 1):
+        for w in range(W + 1):
+            berat = biaya[i - 1]
+            if berat <= w:
+                dp[i][w] = max(dp[i - 1][w], nilai[i - 1] + dp[i - 1][w - berat])
+            else:
+                dp[i][w] = dp[i - 1][w]
+
+    def ambil_item(dp, weight, value, items, W):
+        result = []
+        i = len(items)
+        w = W
+        while i > 0 and w >= 0:
+            if dp[i][w] != dp[i-1][w]:
+                result.append(items[i-1])
+                w -= weight[i-1]
+            i -= 1
+        return result[::-1]
+
+    terpilih = ambil_item(dp, biaya, nilai, nama_terpilih, W)
+
+    print(f"\nDiversifikasi terbaik dengan modal Rp{modal:,}:")
+    if not terpilih:
+        print("Tidak ada mata uang yang terpilih.")
+    else:
+        for mata in terpilih:
+            idx = nama_terpilih.index(mata)
+            print(f"- {mata}: Expected return {nilai[idx]*100:.2f}% | Kurs saat ini Rp{biaya[idx]:,.2f}")
+
 def deteksi_tren(data: list, window_size = 3):
     trend_count = {"up": 0, "down": 0, "sideways": 0}
     
@@ -225,26 +320,6 @@ def deteksi_tren(data: list, window_size = 3):
             return "Downtrend"
         else:
             return "Sideways"
-
-#Fitur no 9
-# Fungsi untuk menghitung potensi investasi
-def potensi_investasi():
-    cls()
-    data = pilih_hari_default(365)
-    expected_return = avg_persentase_perubahan(persentase_perubahan(data, 0, len(data) - 1))
-    volatil = volatilitas(data)
-    
-    sheet2 = spreadsheet.worksheet("SKBA")
-    data2 = sheet2.get_all_records()
-    df2 = pd.DataFrame(data2)
-    df2["suku bunga"] = df2["suku bunga"].astype(float)
-
-    suku_bunga = (df2[df2["mata uang"] == mata_uang]["suku bunga"].values[0])/100
-    sharperatio = sharpe_ratio(expected_return, suku_bunga, volatil)
-    ird = interest_rate_difference(suku_bunga)
-
-    potensi = ((expected_return * 0.35) + (volatil * 0.25) + (sharperatio * 0.25) + (ird * 0.15)) * 100
-    print(f"Potensi investasi untuk {mata_uang} dalam 1 tahun terakhir: {potensi:.2f}%")
 
 def sharpe_ratio(expected_return, suku_bunga, volatil):
     if volatil == 0:
@@ -325,7 +400,7 @@ def ambil_data_mata_uang(spreadsheet, kode):
         print(f"Gagal mengambil data untuk {kode}: {e}")
         return None
 
-#fungsi no 6
+#fungsi untuk no 6
 def mata_uang_2(mata_uang, hari):
     sheet2 = spreadsheet.worksheet(mata_uang)
 
@@ -444,81 +519,7 @@ def prediksi_tren_multi_window(df, windows=[3,5,7]):
         return tren_terbanyak[0]
     else:
         return "Sideways"
-
-# FITUR NO 10: Diversifikasi Portofolio (dengan algoritma Knapsack)
-def diversifikasi_portofolio():
-    cls()
-    try:
-        modal = int(input("Masukkan total modal dalam Rupiah (contoh: 100000000): "))
-    except:
-        print("Input modal tidak valid.")
-        return
-
-    mata_uang_list = ["USD", "EUR", "JPY", "MYR", "KRW", "CNY", "SGD"]
-    nilai = []  # expected return
-    biaya = []  # kurs saat ini
-    nama_terpilih = []
-
-    for mata in mata_uang_list:
-        try:
-            df_temp = ambil_data_mata_uang(spreadsheet, mata)
-            if df_temp is None or df_temp.empty:
-                continue
-
-            df_temp = df_temp.sort_values("Tanggal")
-            tanggal_akhir_temp = df_temp["Tanggal"].max()
-            tanggal_awal = tanggal_akhir_temp - timedelta(days=29)
-            df_30 = df_temp[df_temp["Tanggal"] >= tanggal_awal]
-            harga = df_30["Harga Dolar"].tolist()
-
-            if len(harga) < 2:
-                continue
-
-            perubahan = [(harga[i+1] - harga[i]) / harga[i] for i in range(len(harga)-1)]
-            expected_return = sum(perubahan) / len(perubahan)
-            kurs_terbaru = df_temp[df_temp["Tanggal"] == tanggal_akhir_temp]["Harga Dolar"].values[0]
-
-            nilai.append(expected_return)
-            biaya.append(int(kurs_terbaru))
-            nama_terpilih.append(mata)
-
-        except Exception as e:
-            print(f"Gagal proses {mata}: {e}")
-            continue
-
-    n = len(nilai)
-    W = int(modal)
-    dp = [[0] * (W + 1) for _ in range(n + 1)]
-
-    for i in range(1, n + 1):
-        for w in range(W + 1):
-            berat = biaya[i - 1]
-            if berat <= w:
-                dp[i][w] = max(dp[i - 1][w], nilai[i - 1] + dp[i - 1][w - berat])
-            else:
-                dp[i][w] = dp[i - 1][w]
-
-    def ambil_item(dp, weight, value, items, W):
-        result = []
-        i = len(items)
-        w = W
-        while i > 0 and w >= 0:
-            if dp[i][w] != dp[i-1][w]:
-                result.append(items[i-1])
-                w -= weight[i-1]
-            i -= 1
-        return result[::-1]
-
-    terpilih = ambil_item(dp, biaya, nilai, nama_terpilih, W)
-
-    print(f"\nDiversifikasi terbaik dengan modal Rp{modal:,}:")
-    if not terpilih:
-        print("Tidak ada mata uang yang terpilih.")
-    else:
-        for mata in terpilih:
-            idx = nama_terpilih.index(mata)
-            print(f"- {mata}: Expected return {nilai[idx]*100:.2f}% | Kurs saat ini Rp{biaya[idx]:,.2f}")
-
+    
 #batas function
 
 #setup google sheet
@@ -531,6 +532,7 @@ cls()
 spreadsheet = client.open_by_key("1mpPFKqyTTugKHharPyyC0UpbG7p3xRxElNpty4zFZdM")
 
 mata_uang = input("Pilih mata uang (USD/EUR/JPY/MYR/KRW/CNY/SGD): ").upper()
+
 try:
     sheet = spreadsheet.worksheet(mata_uang)
 except:
@@ -544,7 +546,7 @@ df["Tanggal"] = df["Tanggal"].dt.date
 df["Harga Dolar"] = df["Harga Dolar"].astype(float)
 tanggal_akhir = df["Tanggal"].max()
 
-#kode
+#program utama
 cls()
 
 print(f"Ingin cek apa? \n1: Tren \n2: Harga {mata_uang} \n3: Cari Tanggal \n4: Deteksi Harga Ekstrem \n5: Konversi Mata Uang \n6: Perbandingan Mata Uang \n7: Perbandingan Rentang Waktu Berbeda  \n8: Prediksi Arah Trend Sederhana \n9: Potensi Investasi \n10: Diversifikasi Portofolio \n=====================================")

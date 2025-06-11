@@ -8,8 +8,80 @@ from datetime import datetime, timedelta
 def cls():
     os.system('cls')
 
+def ambil_data_mata_uang(spreadsheet, kode):
+    try:
+        sheet = spreadsheet.worksheet(kode)
+        data = sheet.get_all_records()
+        df = pd.DataFrame(data)
+        df["Tanggal"] = pd.to_datetime(df["Tanggal"], dayfirst=True)
+        df["Harga Dolar"] = df["Harga Dolar"].astype(float)
+        return df
+    except Exception as e:
+        print(f"Gagal mengambil data untuk {kode}: {e}")
+        return None
+
+def pilih_hari_default(hari):
+    tanggal_awal = tanggal_akhir - timedelta(days = hari-1)
+    df_hari = df[df["Tanggal"] >= tanggal_awal].sort_values("Tanggal")
+    harga_hari = df_hari["Harga Dolar"].tolist() 
+    return harga_hari
+
+def pilih_hari_custom(tanggal_awal, tanggal_akhir):
+    df_hari = df[(df["Tanggal"] >= tanggal_awal) & (df["Tanggal"] <= tanggal_akhir)].sort_values("Tanggal")
+    harga_hari = df_hari["Harga Dolar"].tolist() 
+    return harga_hari
+
+def cari_tanggal(data, target_tanggal):
+    left = 0
+    right = len(data) - 1
+    target_tanggal = target_tanggal.date()
+
+    while left <= right:
+        mid = (left + right) // 2
+        mid_date = data[mid]["Tanggal"].date()
+        
+        if mid_date == target_tanggal:
+            return data[mid]
+        elif mid_date < target_tanggal:
+            left = mid + 1
+        else:
+            right = mid - 1
+    
+    return None 
+
 #Fitur no 1
 # Tren harga mata uang
+
+def deteksi_tren(data: list, window_size = 3):
+    trend_count = {"up": 0, "down": 0, "sideways": 0}
+    
+    for i in range(len(data) - window_size + 1):
+        start = data[i]
+        end = data[i + window_size - 1]
+        if end > start:
+            trend_count["up"] += 1
+        elif end < start:
+            trend_count["down"] += 1
+        else:
+            trend_count["sideways"] += 1
+
+    trend_list = list(trend_count.items())
+    n = len(trend_list)
+    for i in range(n):
+        for j in range(0, n - i - 1):
+            if trend_list[j][1] < trend_list[j + 1][1]:
+                trend_list[j], trend_list[j + 1] = trend_list[j + 1], trend_list[j]
+
+    if trend_list[0][1] == trend_list[1][1]:
+        return "Sideways"
+    else:
+        if trend_list[0][0] == "up":
+            return "Uptrend"
+        elif trend_list[0][0] == "down":
+            return "Downtrend"
+        else:
+            return "Sideways"
+
 def fitur_deteksi_tren():
     cls()
     hari = int(input("Jumlah hari (3/7) : "))
@@ -51,6 +123,25 @@ def cari_harga_tanggal():
 
 #Fitur no 4
 # Mendeteksi harga ekstrem (tertinggi dan terendah) dalam rentang hari tertentu 
+
+def cari_harga_ekstrim(arr, left, right):
+    if left == right:
+        return arr[left], arr[left]
+    elif right == left + 1:
+        if arr[left][1] > arr[right][1]:
+            return arr[left], arr[right]
+        else:
+            return arr[right], arr[left]
+    else:
+        mid = (left + right) // 2
+        max1, min1 = cari_harga_ekstrim(arr, left, mid)
+        max2, min2 = cari_harga_ekstrim(arr, mid + 1, right)
+
+        max_harga = max1 if max1[1] >= max2[1] else max2
+        min_harga = min1 if min1[1] <= min2[1] else min2
+
+        return max_harga, min_harga
+
 def deteksi_harga_ekstrem():
     cls
     hari = int(input("Cek harga ekstrem dalam berapa hari terakhir? : "))
@@ -61,15 +152,22 @@ def deteksi_harga_ekstrem():
         print("Tidak ada data untuk rentang hari tersebut.")
     else:
         harga_list = list(zip(df_hari["Tanggal"], df_hari["Harga Dolar"]))
-        max_data, min_data = deteksi_harga_ekstrim(harga_list, 0, len(harga_list) - 1)
+        max_data, min_data = cari_harga_ekstrim(harga_list, 0, len(harga_list) - 1)
 
         print(f"Harga TERTINGGI ({mata_uang}): Rp{max_data[1]} pada {max_data[0].strftime('%d-%m-%Y')}")
         print(f"Harga TERENDAH ({mata_uang}) : Rp{min_data[1]} pada {min_data[0].strftime('%d-%m-%Y')}")
 
 #Fitur no 5
 # Konversi mata uang
+
+def konversi_rupiah_ke_mata_uang(jumlah_rupiah, kurs):
+    return jumlah_rupiah / kurs
+
+def konversi_mata_uang_ke_rupiah(jumlah_mata_uang, kurs):
+    return jumlah_mata_uang * kurs
+
 def konversi_mata_uang():
-    cls
+    cls()
     print("Konversi:")
     print(f"1. Rupiah ke {mata_uang}")
     print(f"2. {mata_uang} ke Rupiah")
@@ -96,6 +194,107 @@ def konversi_mata_uang():
 
 #Fitur no 6
 # Perbandingan mata uang
+
+def mata_uang_2(mata_uang, hari):
+    sheet2 = spreadsheet.worksheet(mata_uang)
+
+    data2 = sheet2.get_all_records()
+    df2 = pd.DataFrame(data2)
+    df2["Tanggal"] = pd.to_datetime(df2["Tanggal"], dayfirst=True)
+    df2["Tanggal"] = df2["Tanggal"].dt.date
+    df2["Harga Dolar"] = df2["Harga Dolar"].astype(float)
+    tanggal_akhir = df2["Tanggal"].max()
+
+    tanggal_awal = tanggal_akhir - timedelta(days = hari-1)
+    df2_hari = df2[df2["Tanggal"] >= tanggal_awal].sort_values("Tanggal")
+    harga_hari = df2_hari["Harga Dolar"].tolist() 
+    return harga_hari
+
+def naik_turun_max(data):
+    list_harga = persentase_perubahan(data, 0, len(data) - 1)
+    atas = max(list_harga)
+    bawah = min(list_harga)
+    return atas, bawah
+
+
+
+def persentase_perubahan(data: list, left, right):
+    if left == right:
+        return []
+    
+    mid = (left + right) // 2
+    perubahan_kiri = persentase_perubahan(data, left, mid)
+    perubahan_kanan = persentase_perubahan(data, mid + 1, right)
+
+    data_perubahan = []
+    if mid + 1 <= right:
+        perubahan = [((data[mid + 1] - data[mid]) / data[mid]) * 100]
+        data_perubahan = perubahan
+
+    return perubahan_kiri + data_perubahan + perubahan_kanan
+
+def avg_persentase_perubahan(data: list):
+    total = sum(data) / len(data)
+    return total
+
+def std_deviasi(data: list, left, right, ratarata):
+    if left == right:
+        return (data[left] - ratarata) ** 2
+    
+    mid = (left + right) // 2
+    kiri = std_deviasi(data, left, mid, ratarata)
+    kanan = std_deviasi(data, mid + 1, right, ratarata)
+
+    return kiri + kanan
+
+def volatilitas(data: list):
+    list_perubahan = persentase_perubahan(data, 0, len(data) - 1)
+    rata_perubahan = avg_persentase_perubahan(list_perubahan)
+    jumlah_deviasi = std_deviasi(list_perubahan, 0, len(list_perubahan) - 1, rata_perubahan)
+    return (jumlah_deviasi / len(list_perubahan)) ** 0.5
+
+def hari_naik_turun(data: list):
+    naik = 0
+    turun = 0
+    for i in range(1, len(data)):
+        if data[i] > data[i - 1]:
+            naik += 1
+        elif data[i] < data[i - 1]:
+            turun += 1
+    return naik, turun
+
+def streak_naik_turun(data: list):
+    streak_naik = 0
+    streak_turun = 0
+    max_streak_naik = 0
+    max_streak_turun = 0
+
+    for i in range(1, len(data)):
+        if data[i] > data[i - 1]:
+            streak_naik += 1
+            streak_turun = 0
+        elif data[i] < data[i - 1]:
+            streak_turun += 1
+            streak_naik = 0
+        else:
+            streak_naik = 0
+            streak_turun = 0
+
+        max_streak_naik = max(max_streak_naik, streak_naik)
+        max_streak_turun = max(max_streak_turun, streak_turun)
+
+    return max_streak_naik, max_streak_turun
+
+def persentase_hari_untung(data: list):
+    total_hari = len(data)
+    hari_naik, hari_turun = hari_naik_turun(data)
+    
+    if total_hari == 0:
+        return 0
+    
+    persentase_naik = (hari_naik / total_hari) * 100
+    return persentase_naik
+
 def bandingkan_mata_uang(uang):
     cls()
     
@@ -191,40 +390,31 @@ def bandingkan_rentang_waktu():
 
 #Fitur no 8
 # Prediksi arah tren sederhana berdasarkan 3, 5, dan 7 hari terakhir
+
+def prediksi_tren_multi_window(df, windows=[3,5,7]):
+    hasil_tren = []
+
+    for harga in windows:
+        harga_hari = pilih_hari_default(harga)  
+        tren = deteksi_tren(harga_hari)  
+        hasil_tren.append(tren)
+
+    hitung = {"Uptrend":0, "Downtrend":0, "Sideways":0}
+    for t in hasil_tren:
+        hitung[t] += 1
+
+    max_jumlah = max(hitung.values())
+    tren_terbanyak = [k for k, v in hitung.items() if v == max_jumlah]
+
+    if len(tren_terbanyak) == 1:
+        return tren_terbanyak[0]
+    else:
+        return "Sideways"
+        
 def prediksi_tren():
     cls()
     tren_prediksi = prediksi_tren_multi_window(df)
     print(f"Prediksi tren harga {mata_uang} berdasarkan 3, 5, dan 7 hari terakhir: {tren_prediksi}")
-
-def deteksi_tren(data: list, window_size = 3):
-    trend_count = {"up": 0, "down": 0, "sideways": 0}
-    
-    for i in range(len(data) - window_size + 1):
-        start = data[i]
-        end = data[i + window_size - 1]
-        if end > start:
-            trend_count["up"] += 1
-        elif end < start:
-            trend_count["down"] += 1
-        else:
-            trend_count["sideways"] += 1
-
-    trend_list = list(trend_count.items())
-    n = len(trend_list)
-    for i in range(n):
-        for j in range(0, n - i - 1):
-            if trend_list[j][1] < trend_list[j + 1][1]:
-                trend_list[j], trend_list[j + 1] = trend_list[j + 1], trend_list[j]
-
-    if trend_list[0][1] == trend_list[1][1]:
-        return "Sideways"
-    else:
-        if trend_list[0][0] == "up":
-            return "Uptrend"
-        elif trend_list[0][0] == "down":
-            return "Downtrend"
-        else:
-            return "Sideways"
 
 #Fitur no 9
 # Fungsi untuk menghitung potensi investasi
@@ -259,192 +449,6 @@ def interest_rate_difference(suku_bunga):
 
     suku_idr = df3[df3["mata uang"] == "IDR"]["suku bunga"].values[0] / 100
     return suku_bunga - suku_idr 
-
-def pilih_hari_default(hari):
-    tanggal_awal = tanggal_akhir - timedelta(days = hari-1)
-    df_hari = df[df["Tanggal"] >= tanggal_awal].sort_values("Tanggal")
-    harga_hari = df_hari["Harga Dolar"].tolist() 
-    return harga_hari
-
-def pilih_hari_custom(tanggal_awal, tanggal_akhir):
-    df_hari = df[(df["Tanggal"] >= tanggal_awal) & (df["Tanggal"] <= tanggal_akhir)].sort_values("Tanggal")
-    harga_hari = df_hari["Harga Dolar"].tolist() 
-    return harga_hari
-
-def cari_tanggal(data, target_tanggal):
-    left = 0
-    right = len(data) - 1
-    target_tanggal = target_tanggal.date()
-
-    while left <= right:
-        mid = (left + right) // 2
-        mid_date = data[mid]["Tanggal"].date()
-        
-        if mid_date == target_tanggal:
-            return data[mid]
-        elif mid_date < target_tanggal:
-            left = mid + 1
-        else:
-            right = mid - 1
-    
-    return None 
-
-def deteksi_harga_ekstrim(arr, left, right):
-    if left == right:
-        return arr[left], arr[left]
-    elif right == left + 1:
-        if arr[left][1] > arr[right][1]:
-            return arr[left], arr[right]
-        else:
-            return arr[right], arr[left]
-    else:
-        mid = (left + right) // 2
-        max1, min1 = deteksi_harga_ekstrim(arr, left, mid)
-        max2, min2 = deteksi_harga_ekstrim(arr, mid + 1, right)
-
-        max_harga = max1 if max1[1] >= max2[1] else max2
-        min_harga = min1 if min1[1] <= min2[1] else min2
-
-        return max_harga, min_harga
-
-def konversi_rupiah_ke_mata_uang(jumlah_rupiah, kurs):
-    return jumlah_rupiah / kurs
-
-def konversi_mata_uang_ke_rupiah(jumlah_mata_uang, kurs):
-    return jumlah_mata_uang * kurs
-
-def ambil_data_mata_uang(spreadsheet, kode):
-    try:
-        sheet = spreadsheet.worksheet(kode)
-        data = sheet.get_all_records()
-        df = pd.DataFrame(data)
-        df["Tanggal"] = pd.to_datetime(df["Tanggal"], dayfirst=True)
-        df["Harga Dolar"] = df["Harga Dolar"].astype(float)
-        return df
-    except Exception as e:
-        print(f"Gagal mengambil data untuk {kode}: {e}")
-        return None
-
-#fungsi no 6
-def mata_uang_2(mata_uang, hari):
-    sheet2 = spreadsheet.worksheet(mata_uang)
-
-    data2 = sheet2.get_all_records()
-    df2 = pd.DataFrame(data2)
-    df2["Tanggal"] = pd.to_datetime(df2["Tanggal"], dayfirst=True)
-    df2["Tanggal"] = df2["Tanggal"].dt.date
-    df2["Harga Dolar"] = df2["Harga Dolar"].astype(float)
-    tanggal_akhir = df2["Tanggal"].max()
-
-    tanggal_awal = tanggal_akhir - timedelta(days = hari-1)
-    df2_hari = df2[df2["Tanggal"] >= tanggal_awal].sort_values("Tanggal")
-    harga_hari = df2_hari["Harga Dolar"].tolist() 
-    return harga_hari
-
-def naik_turun_max(data):
-    list_harga = persentase_perubahan(data, 0, len(data) - 1)
-    atas = max(list_harga)
-    bawah = min(list_harga)
-    return atas, bawah
-
-def persentase_perubahan(data: list, left, right):
-    if left == right:
-        return []
-    
-    mid = (left + right) // 2
-    perubahan_kiri = persentase_perubahan(data, left, mid)
-    perubahan_kanan = persentase_perubahan(data, mid + 1, right)
-
-    data_perubahan = []
-    if mid + 1 <= right:
-        perubahan = [((data[mid + 1] - data[mid]) / data[mid]) * 100]
-        data_perubahan = perubahan
-
-    return perubahan_kiri + data_perubahan + perubahan_kanan
-
-def avg_persentase_perubahan(data: list):
-    total = sum(data) / len(data)
-    return total
-
-def std_deviasi(data: list, left, right, ratarata):
-    if left == right:
-        return (data[left] - ratarata) ** 2
-    
-    mid = (left + right) // 2
-    kiri = std_deviasi(data, left, mid, ratarata)
-    kanan = std_deviasi(data, mid + 1, right, ratarata)
-
-    return kiri + kanan
-
-def volatilitas(data: list):
-    list_perubahan = persentase_perubahan(data, 0, len(data) - 1)
-    rata_perubahan = avg_persentase_perubahan(list_perubahan)
-    jumlah_deviasi = std_deviasi(list_perubahan, 0, len(list_perubahan) - 1, rata_perubahan)
-    return (jumlah_deviasi / len(list_perubahan)) ** 0.5
-
-def hari_naik_turun(data: list):
-    naik = 0
-    turun = 0
-    for i in range(1, len(data)):
-        if data[i] > data[i - 1]:
-            naik += 1
-        elif data[i] < data[i - 1]:
-            turun += 1
-    return naik, turun
-
-def streak_naik_turun(data: list):
-    streak_naik = 0
-    streak_turun = 0
-    max_streak_naik = 0
-    max_streak_turun = 0
-
-    for i in range(1, len(data)):
-        if data[i] > data[i - 1]:
-            streak_naik += 1
-            streak_turun = 0
-        elif data[i] < data[i - 1]:
-            streak_turun += 1
-            streak_naik = 0
-        else:
-            streak_naik = 0
-            streak_turun = 0
-
-        max_streak_naik = max(max_streak_naik, streak_naik)
-        max_streak_turun = max(max_streak_turun, streak_turun)
-
-    return max_streak_naik, max_streak_turun
-
-def persentase_hari_untung(data: list):
-    total_hari = len(data)
-    hari_naik, hari_turun = hari_naik_turun(data)
-    
-    if total_hari == 0:
-        return 0
-    
-    persentase_naik = (hari_naik / total_hari) * 100
-    return persentase_naik
-#batas fitur no 6
-
-def prediksi_tren_multi_window(df, windows=[3,5,7]):
-    hasil_tren = []
-
-    for harga in windows:
-        harga_hari = pilih_hari_default(harga)  
-        tren = deteksi_tren(harga_hari)  
-        hasil_tren.append(tren)
-
-    hitung = {"Uptrend":0, "Downtrend":0, "Sideways":0}
-    for t in hasil_tren:
-        hitung[t] += 1
-
-    max_jumlah = max(hitung.values())
-    tren_terbanyak = [k for k, v in hitung.items() if v == max_jumlah]
-
-    if len(tren_terbanyak) == 1:
-        return tren_terbanyak[0]
-    else:
-        return "Sideways"
-
 
 #batas function
 

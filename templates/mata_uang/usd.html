@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MoneyScope | USD/IDR </title>
+  <link rel="icon" href="{{ url_for('static', filename='icon.png') }}" type="image">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<!-- Fixed Top Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+  <div class="container-fluid">
+    <!-- Kiri: Brand -->
+    <a class="navbar-brand fs-2 " href="{{ url_for('index') }}"><b>MoneyScope</b></a>
+
+    <!-- Kanan: Dropdown Mata Uang -->
+    <ul class="navbar-nav ms-auto">
+      <li class="nav-item dropdown">
+        <a class="nav-link fs-5 dropdown-toggle" href="#" role="button" id="currencyDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+          Mata Uang
+        </a>
+        <ul class="dropdown-menu" aria-labelledby="currencyDropdown">
+          <li><a class="dropdown-item active fs-5" href="{{ url_for('usd') }}">USD/IDR</a></li>
+          <li><a class="dropdown-item fs-5" href="{{ url_for('eur') }}">EUR/IDR</a></li>
+          <li><a class="dropdown-item fs-5" href="{{ url_for('jpy') }}">JPY/IDR</a></li>
+          <li><a class="dropdown-item fs-5" href="{{ url_for('myr') }}">MYR/IDR</a></li>
+          <li><a class="dropdown-item fs-5" href="{{ url_for('krw') }}">KRW/IDR</a></li>
+          <li><a class="dropdown-item fs-5" href="{{ url_for('cny') }}">CNY/IDR</a></li>
+          <li><a class="dropdown-item fs-5" href="{{ url_for('sgd') }}">SGD/IDR</a></li>
+          <li><a class="dropdown-item fs-5" href="{{ url_for('aud') }}">AUD/IDR</a></li>
+        </ul>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link fs-5" href="{{ url_for('index') }}">Potensi Investasi</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link fs-5" href="{{ url_for('index') }}">Tentang</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<section class="container mt-4">
+
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="small mb-3">
+    <ol class="breadcrumb bg-transparent p-0">
+      <li class="breadcrumb-item"><a href="{{ url_for('index') }}" class="text-decoration-none text-secondary">MoneyScope</a></li>
+      <li class="breadcrumb-item"><a href="#" class="text-decoration-none text-secondary">Mata Uang</a></li>
+      <li class="breadcrumb-item active text-dark" aria-current="page">{{ currency.name }}</li>
+    </ol>
+  </nav>
+
+  <!-- Judul halaman -->
+  <h1 class="fw-bold mb-4">USD/IDR - Dolar Amerika Rupiah Indonesia</h1>
+
+  <!-- Info harga dan update -->
+  <div class="row align-items-start g-4">
+    <!-- Feature card harga -->
+    <div class="col-md-4">
+      <div class="feature-card p-3 w-auto ms-0 no-hover" style="max-width: 400px; background-color: {% if is_up %}#e9f8f0{% elif is_down %}#fdecea{% else %}#f0f0f0{% endif %};">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h1 class="fw-bold mb-0">{{ '%.2f'|format(currency.price) }}</h1>
+          </div>
+          <div class="text-end">
+            <p class="fs-5 mb-1 {% if is_up %}text-success{% elif is_down %}text-danger{% else %}text-secondary{% endif %}">
+              {{ currency.change_icon }} {{ currency.percent }}
+            </p>
+            <small class="text-muted">
+              {{ currency.change_icon }} {{ currency.change }}
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Tanggal update -->
+    <div class="col-md-8 d-flex align-items-center">
+      <span class="me-2" style="font-size:1em; color:#6c757d;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-clock" viewBox="0 0 16 16">
+          <path d="M8 3.5a.5.5 0 0 1 .5.5v4.25l3.5 2.1a.5.5 0 1 1-.5.86l-3.75-2.25A.5.5 0 0 1 7.5 8V4a.5.5 0 0 1 .5-.5z"/>
+          <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm0-1A7 7 0 1 1 8 1a7 7 0 0 1 0 14z"/>
+        </svg>
+      </span>
+      <p class="mb-0 small text-muted mt-2">
+        Update Terbaru: {{ update_date }}
+      </p>
+    </div>
+  </div>
+</section>
+
+<br>
+
+<div class="w-100 py-5" style="background-color: #edeef0;">
+  <section class="container">
+    <h4 class="fw-semibold mb-4">Mata Uang Lainnya</h4>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+      {% for other in currencies if other.code in ['EUR_IDR', 'JPY_IDR', 'KRW_IDR', 'SGD_IDR'] %}
+      <div class="col">
+        <a href="{% if other.code == 'EUR_IDR' %}{{ url_for('eur') }}{% elif other.code == 'JPY_IDR' %}{{ url_for('jpy') }}{% elif other.code == 'KRW_IDR' %}{{ url_for('krw') }}{% elif other.code == 'SGD_IDR' %}{{ url_for('sgd') }}{% else %}#{% endif %}" class="text-decoration-none text-dark">
+          <div class="feature-card p-3 h-100">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h5 class="fw-bold judul mb-1">{{ other.name }}</h5>
+                <p class="mb-0">{{ other.price_str }}</p>
+              </div>
+              <div class="text-end">
+                <span class="{{ other.change_class }} fw-medium">
+                  {{ other.change_icon }} {{ other.percent }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+
+<div class="container mb-5">
+  <hr class="my-5">
+</div>
+
+<!-- Grafik Line Chart -->
+<section class="container mt-4">
+  <h2 class="fw-bold mb-4">Grafik Harga USD/IDR</h2>
+  <div class="row">
+    <div class="col-lg-9">
+      <div class="feature-card p-4 mb-4 no-hover w-100" style="box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+        <div class="d-flex justify-content-end mb-3">
+          <div class="dropdown">
+            <button class="btn btn-primary btn-sm dropdown-toggle" type="button" id="dropdownHari" data-bs-toggle="dropdown" aria-expanded="false">
+              <span id="dropdownHariLabel">7 Hari</span>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="dropdownHari">
+              <li><a class="dropdown-item active" href="#" data-range="7">7 Hari</a></li>
+              <li><a class="dropdown-item" href="#" data-range="14">14 Hari</a></li>
+              <li><a class="dropdown-item" href="#" data-range="1bulan">1 Bulan</a></li>
+              <li><a class="dropdown-item" href="#" data-range="3bulan">3 Bulan</a></li>
+              <li><a class="dropdown-item" href="#" data-range="6bulan">6 Bulan</a></li>
+              <li><a class="dropdown-item" href="#" data-range="1tahun">1 Tahun</a></li>
+              <li><a class="dropdown-item" href="#" data-range="5tahun">5 Tahun</a></li>
+              <li><a class="dropdown-item" href="#" data-range="all">Semua</a></li>
+            </ul>
+          </div>
+        </div>
+        <canvas id="usdLineChart" height="80"></canvas>
+      </div>
+    </div>
+    <div class="col-lg-3 d-flex flex-column justify-content-start align-items-stretch mb-4" style="height:100%;">
+      <div class="d-flex flex-column justify-content-start align-items-stretch h-100">
+        <div class="w-100 mb-3 p-3 bg-white rounded-3 shadow-sm flex-fill" style="min-height:180px;">
+          <div class="mb-2">
+            <span class="fw-semibold text-secondary">Harga Tertinggi</span><br>
+            <span class="fs-5 fw-bold text-success" id="harga-tertinggi">Rp{{ '{:,.2f}'.format(harga_tertinggi_7.harga) }}</span>
+            <span class="small text-muted" id="tanggal-tertinggi">({{ harga_tertinggi_7.tanggal }})</span>
+          </div>
+          <div>
+            <span class="fw-semibold text-secondary">Harga Terendah</span><br>
+            <span class="fs-5 fw-bold text-danger" id="harga-terendah">Rp{{ '{:,.2f}'.format(harga_terendah_7.harga) }}</span>
+            <span class="small text-muted" id="tanggal-terendah">({{ harga_terendah_7.tanggal }})</span>
+          </div>
+        </div>
+        <div class="w-100 p-3 bg-white rounded-3 shadow-sm flex-fill d-flex flex-column justify-content-center align-items-start" style="min-height:100px;">
+          <div id="tren-box">
+            <span class="fw-semibold text-secondary">Tren <span id="tren-label">7 Hari Terakhir</span></span><br>
+            <span class="fs-5 fw-bold align-middle" id="tren-hari">
+              {% if tren_14 == 'Uptrend' %}
+                <span class="text-success">▲ Uptrend</span>
+              {% elif tren_14 == 'Downtrend' %}
+                <span class="text-danger">▼ Downtrend</span>
+              {% else %}
+                <span class="text-secondary">Sideways</span>
+              {% endif %}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cek Harga USD/IDR pada Tanggal Tertentu (Lebar sama dengan grafik) -->
+  <div class="row">
+    <div class="col-lg-9">
+      <div class="feature-card p-4 mb-4 no-hover w-100" style="box-shadow:0 2px 12px #00000014;">
+        <h5 class="fw-bold mb-3 text-center">Cek Harga USD/IDR pada Tanggal Tertentu</h5>
+        <form id="cek-harga-form" autocomplete="off" onsubmit="return false;">
+          <div class="mb-3">
+            <label for="tanggal-harga" class="form-label">Pilih Tanggal</label>
+            <input type="date" class="form-control" id="tanggal-harga" max="{{ data_chart.labels[-1] if data_chart.labels else '' }}" min="{{ data_chart.labels[0] if data_chart.labels else '' }}">
+          </div>
+          <div class="mb-2">
+            <span id="harga-tanggal-label" class="fw-semibold"></span>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <!-- End Cek Harga USD/IDR pada Tanggal Tertentu -->
+
+  <!-- Analisis dan Prediksi USD/IDR, section terpisah di bawah grafik -->
+  <section class="mt-4 mb-4">
+    <h2 class="fw-bold mb-2">Dolar AS / Rupiah Indonesia – Analisis dan Prediksi</h2>
+    <p class="mb-3 fs-5">
+      Pasangan mata uang USD/IDR merupakan salah satu pasangan paling unik dan kompleks di kawasan Asia Tenggara. Meskipun fundamental ekonomi Indonesia tergolong stabil, nilai tukar Rupiah secara historis menunjukkan tren devaluasi terhadap Dolar Amerika Serikat. Dalam kurun waktu 10 tahun terakhir, Rupiah telah melemah lebih dari 50%, mencerminkan tekanan struktural dalam jangka panjang.
+    </p>
+    <p class="mb-4 fs-5">
+      Fluktuasi USD/IDR juga dikenal sangat dinamis, terutama dalam kerangka waktu harian hingga mingguan. Kisaran pergerakan harga dalam beberapa bulan bisa mencapai 15–20%, menjadikan pasangan ini menarik untuk strategi perdagangan dua arah, terutama bagi trader yang mengandalkan volatilitas tinggi.
+    </p>
+    <div class="mb-2 fs-5">
+      <span class="fw-semibold">Faktor Pendukung Stabilitas Ekonomi Indonesia:</span>
+      <ul class="mb-2 ps-3">
+        <li class="mb-2">Inflasi Terkendali: Selama lima tahun terakhir, laju inflasi Indonesia relatif stabil di kisaran 3–4% per tahun, dan jarang melebihi angka 6%.</li>
+        <li class="mb-2">Utang Publik Rendah: Tingkat utang pemerintah berada di angka ~40% dari PDB, jauh di bawah ambang aman 60% yang sering dijadikan standar internasional.</li>
+      </ul>
+    </div>
+  </section>
+  <!-- End Analisis dan Prediksi -->
+
+  <!-- Konversi USD ke IDR & IDR ke USD -->
+  <section class="container mt-5 mb-4">
+    <div class="row justify-content-center">
+      <div class="col-md-7 col-lg-6">
+        <div class="p-4 bg-white rounded-3 shadow-sm">
+          <h4 class="fw-bold mb-3 text-center">Konversi Dolar Amerika (USD) & Rupiah Indonesia (IDR)</h4>
+          <div class="mb-3 text-center">
+            <span class="fw-semibold">Kurs Hari Ini:</span>
+            <span class="fs-5 fw-bold text-primary">1 USD = Rp{{ '{:,.2f}'.format(currency.price) }}</span>
+          </div>
+          <form id="usd-converter-form" autocomplete="off" onsubmit="return false;">
+            <div class="row g-2 align-items-end">
+              <!-- Kiri -->
+              <div class="col-12 col-md-5">
+                <label for="inputLeft" class="form-label fw-bold" id="labelLeft">Dolar Amerika (USD)</label>
+                <input type="number" min="0" step="0.01" class="form-control form-control-lg" id="inputLeft" placeholder="0.00" autocomplete="off">
+              </div>
+              <!-- Tombol swap -->
+              <div class="col-12 col-md-2 d-flex justify-content-center align-items-end mb-2 mb-md-0">
+                <button id="swapBtnUsd" type="button" class="btn btn-outline-secondary mx-2 swap-button" style="height:48px;width:48px;">⇄</button>
+              </div>
+              <!-- Kanan -->
+              <div class="col-12 col-md-5">
+                <label for="inputRight" class="form-label fw-bold" id="labelRight">Rupiah (IDR)</label>
+                <input type="text" class="form-control form-control-lg" id="inputRight" placeholder="0.00" disabled>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+</section>
+
+<div class="container mb-5">
+  <hr class="my-5">
+  <section class="mt-4 mb-5">
+    <h2 class="fw-bold mb-3">Tabel Perbandingan</h2>
+    <div class="feature-card p-4 bg-white rounded-3 shadow-sm mb-4 no-hover">
+      <h5 class="fw-bold mb-3">Perbandingan USD/IDR Dengan Kurs Mata Uang Lain</h5>
+      <div class="mb-3 d-flex align-items-center gap-2">
+        <label for="dropdownPerbandingan" class="form-label fw-semibold mb-0">Pilih Mata Uang Pembanding:</label>
+        <div class="position-relative" style="min-width:210px;">
+          <select id="dropdownPerbandingan" class="form-select ps-5 py-2 rounded-3 shadow-sm border-0" style="background: #f8fafc url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/icons/currency-exchange.svg') no-repeat 12px center/22px 22px, url('data:image/svg+xml;utf8,<svg fill='%231c2941' height='18' viewBox='0 0 16 16' width='18' xmlns='http://www.w3.org/2000/svg'><path d='M1.646 5.646a.5.5 0 0 1 .708 0L8 11.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/></svg>') no-repeat right 16px center/18px 18px; font-weight:600; color:#1c2941;">
+            <option value="-" selected>Pilih Mata Uang</option>
+            <option value="EUR">EUR/IDR</option>
+            <option value="SGD">SGD/IDR</option>
+          </select>
+        </div>
+      </div>
+      <div class="table-responsive mb-0">
+        <table class="table table-bordered align-middle text-center mb-0" id="tabelPerbandingan" style="min-width:600px;">
+          <thead class="table-light">
+            <tr>
+              <th style="width:32%">Aspek Perbandingan</th>
+              <th style="width:34%">USD/IDR</th>
+              <th style="width:34%" id="thPembanding">-</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="text-start">Rata-rata Perubahan (%)</td><td id="usd_rataPerubahan">{{ perbandingan_dummy['USD']['Rata-rata Perubahan (%)'] }}</td><td id="uangperbandingan_rataPerubahan"></td></tr>
+            <tr><td class="text-start">Tren Dominan</td><td id="usd_tren">{{ perbandingan_dummy['USD']['Tren Dominan'] }}</td><td id="uangperbandingan_tren"></td></tr>
+            <tr><td class="text-start">Kenaikan Max(%)</td><td id="usd_kenaikanMax">{{ perbandingan_dummy['USD']['Kenaikan Max(%)'] }}</td><td id="uangperbandingan_kenaikanMax"></td></tr>
+            <tr><td class="text-start">Penurunan Max(%)</td><td id="usd_penurunanMax">{{ perbandingan_dummy['USD']['Penurunan Max(%)'] }}</td><td id="uangperbandingan_penurunanMax"></td></tr>
+            <tr><td class="text-start">Volatilitas(%)</td><td id="usd_volatilitas">{{ perbandingan_dummy['USD']['Volatilitas(%)'] }}</td><td id="uangperbandingan_volatilitas"></td></tr>
+            <tr><td class="text-start">Jumlah Hari Naik</td><td id="usd_hariNaik">{{ perbandingan_dummy['USD']['Jumlah Hari Naik'] }}</td><td id="uangperbandingan_hariNaik"></td></tr>
+            <tr><td class="text-start">Jumlah Hari Turun</td><td id="usd_hariTurun">{{ perbandingan_dummy['USD']['Jumlah Hari Turun'] }}</td><td id="uangperbandingan_hariTurun"></td></tr>
+            <tr><td class="text-start">Durasi Tren Naik Terpanjang</td><td id="usd_trenNaik">{{ perbandingan_dummy['USD']['Durasi Tren Naik Terpanjang'] }}</td><td id="uangperbandingan_trenNaik"></td></tr>
+            <tr><td class="text-start">Durasi Tren Turun Terpanjang</td><td id="usd_trenTurun">{{ perbandingan_dummy['USD']['Durasi Tren Turun Terpanjang'] }}</td><td id="uangperbandingan_trenTurun"></td></tr>
+            <tr><td class="text-start">Persentase Hari Untung(%)</td><td id="usd_persenUntung">{{ perbandingan_dummy['USD']['Persentase Hari Untung(%)'] }}</td><td id="uangperbandingan_persenUntung"></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tabel Perbandingan USD/IDR pada Dua Rentang Waktu -->
+    <div class="feature-card p-4 bg-white rounded-3 shadow-sm mb-4 no-hover">
+      <h5 class="fw-bold mb-3">Perbandingan USD/IDR Pada Dua Rentang Waktu</h5>
+      <form id="formPerbandinganRentang" class="row g-3 align-items-end">
+        <div class="col-md-5">
+          <label class="form-label fw-semibold">Rentang 1</label>
+          <div class="input-group">
+            <input type="date" class="form-control" id="rentang1_awal">
+            <span class="input-group-text">s/d</span>
+            <input type="date" class="form-control" id="rentang1_akhir">
+          </div>
+        </div>
+        <div class="col-md-5">
+          <label class="form-label fw-semibold">Rentang 2</label>
+          <div class="input-group">
+            <input type="date" class="form-control" id="rentang2_awal">
+            <span class="input-group-text">s/d</span>
+            <input type="date" class="form-control" id="rentang2_akhir">
+          </div>
+        </div>
+        <div class="col-md-2 d-grid">
+          <button type="button" class="btn btn-primary" id="btnBandingkanRentang">Bandingkan</button>
+        </div>
+      </form>
+      <div id="hasilPerbandinganRentang" class="mt-4">
+        <div class="table-responsive">
+          <table class="table table-bordered align-middle text-center mb-0" style="min-width:600px;">
+            <thead class="table-light">
+              <tr>
+                <th style="width:32%">Aspek Perbandingan</th>
+                <th style="width:34%">Rentang 1</th>
+                <th style="width:34%">Rentang 2</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="text-start">Rata-rata Perubahan (%)</td><td>-</td><td>-</td></tr>
+              <tr><td class="text-start">Tren Dominan</td><td>-</td><td>-</td></tr>
+              <tr><td class="text-start">Kenaikan Max(%)</td><td>-</td><td>-</td></tr>
+              <tr><td class="text-start">Penurunan Max(%)</td><td>-</td><td>-</td></tr>
+              <tr><td class="text-start">Volatilitas(%)</td><td>-</td><td>-</td></tr>
+              <tr><td class="text-start">Jumlah Hari Naik</td><td>-</td><td>-</td></tr>
+              <tr><td class="text-start">Jumlah Hari Turun</td><td>-</td><td>-</td></tr>
+              <tr><td class="text-start">Durasi Tren Naik Terpanjang</td><td>-</td><td>-</td></tr>
+              <tr><td class="text-start">Durasi Tren Turun Terpanjang</td><td>-</td><td>-</td></tr>
+              <tr><td class="text-start">Persentase Hari Untung(%)</td><td>-</td><td>-</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<footer class="footer mt-5 text-white">
+  <div class="container py-4">
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <h4 class="fw-bold">MoneyScope</h4>
+        <p class="mb-0">Pantau. Analisa. Kendalikan Valuta Asingmu.</p>
+      </div>
+      <div class="col-md-6 mb-3">
+        <h5 class="fw-semibold">Navigasi Cepat</h5>
+        <ul class="list-unstyled">
+          <li><a href="/">Beranda</a></li>
+          <li><a href="#potensi">Potensi Investasi</a></li>
+          <li><a href="#tentang">Tentang</a></li>
+          <li><a href="https://github.com/Devangaa/Moneyscope" target="_blank">GitHub</a></li>
+        </ul>
+      </div>
+    </div>
+    <hr class="border-light" />
+    <p class="text-center mb-0 small">© 2025 MoneyScope. All rights reserved.</p>
+  </div>
+</footer>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  window.dataPerbandingan = {{ perbandingan_dummy|tojson|safe }};
+
+  // Grafik Line Chart
+  let currentRange = '7';
+  let usdLineChart = null;
+  // Mapping rentang dropdown ke jumlah hari
+  const rangeToDays = {
+    '7': 7,
+    '14': 14,
+    '1bulan': 30,
+    '3bulan': 90,
+    '6bulan': 180,
+    '1tahun': 365,
+    '5tahun': 1825,
+    'all': 'all'
+  };
+  async function fetchChartData(range) {
+    const res = await fetch(`/chart_data/USD/${range}`);
+    if (!res.ok) return null;
+    return await res.json();
+  }
+  async function updateChartByRange(range) {
+    const data = await fetchChartData(range);
+    if (!data) return;
+    const labels = data.labels.map(date => {
+      // Format ke DD-MM-YYYY
+      const [y,m,d] = date.split('-');
+      return `${d}-${m}-${y}`;
+    });
+    if (!usdLineChart) {
+      // Inisialisasi chart pertama kali
+      let ctx = document.getElementById('usdLineChart').getContext('2d');
+      usdLineChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'USD/IDR',
+            data: data.values,
+            borderColor: '#26a1ba',
+            backgroundColor: 'rgba(38,161,186,0.1)',
+            fill: true,
+            tension: 0,
+            pointRadius: 3,
+            pointBackgroundColor: '#26a1ba',
+            pointBorderColor: '#fff',
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            tooltip: { enabled: true }
+          },
+          scales: {
+            x: { display: true, title: { display: true, text: 'Tanggal' } },
+            y: { display: true, title: { display: true, text: 'Harga (IDR)' } }
+          }
+        }
+      });
+    } else {
+      usdLineChart.data.labels = labels;
+      usdLineChart.data.datasets[0].data = data.values;
+      usdLineChart.update();
+    }
+  }
+  document.querySelectorAll('.dropdown-item[data-range]').forEach(function(item) {
+    item.addEventListener('click', function(e) {
+      e.preventDefault();
+      currentRange = this.getAttribute('data-range');
+      updateChartByRange(currentRange);
+      document.getElementById('dropdownHariLabel').textContent = this.textContent;
+      document.querySelectorAll('.dropdown-item[data-range]').forEach(i => i.classList.remove('active'));
+      this.classList.add('active');
+      // Update harga ekstrim & tren sesuai rentang
+      let days = rangeToDays[currentRange];
+      // fallback jika data 'all' tidak ada, pakai max key
+      if (days === 'all') {
+        days = Object.keys(hargaEkstrim).includes('all') ? 'all' : String(Math.max(...Object.keys(hargaEkstrim).filter(k => k !== 'all').map(Number)));
+      } else {
+        days = String(days);
+      }
+      updateHargaEkstrim(days);
+      updateTren(days);
+    });
+  });
+  // Data harga ekstrim untuk 5, 7, 14 hari dari backend
+  const hargaEkstrim = JSON.parse('{{ ekstrim_json|safe }}');
+  function updateHargaEkstrim(days) {
+    const data = hargaEkstrim[days];
+    document.getElementById('harga-tertinggi').textContent = 'Rp' + data.tertinggi.harga.toLocaleString('id-ID', {minimumFractionDigits:2});
+    document.getElementById('tanggal-tertinggi').textContent = '(' + data.tertinggi.tanggal + ')';
+    document.getElementById('harga-terendah').textContent = 'Rp' + data.terendah.harga.toLocaleString('id-ID', {minimumFractionDigits:2});
+    document.getElementById('tanggal-terendah').textContent = '(' + data.terendah.tanggal + ')';
+  }
+  // Data tren untuk semua rentang dari backend
+  const trenData = JSON.parse('{{ tren_dict|tojson|safe }}');
+  function updateTren(days) {
+    let key = days;
+    if (key !== 'all') key = String(key);
+    const tren = trenData[key];
+    let html = '';
+    if (tren === 'Uptrend') {
+      html = '<span class="text-success">▲ Uptrend</span>';
+    } else if (tren === 'Downtrend') {
+      html = '<span class="text-danger">▼ Downtrend</span>';
+    } else {
+      html = '<span class="text-secondary">Sideways</span>';
+    }
+    document.getElementById('tren-hari').innerHTML = html;
+    let label;
+    if (key === 'all') {
+      label = 'Semua Data';
+    } else if (key === '30') {
+      label = '1 Bulan Terakhir';
+    } else if (key === '90') {
+      label = '3 Bulan Terakhir';
+    } else if (key === '180') {
+      label = '6 Bulan Terakhir';
+    } else if (key === '365') {
+      label = '1 Tahun Terakhir';
+    } else if (key === '1825') {
+      label = '5 Tahun Terakhir';
+    } else {
+      label = key + ' Hari Terakhir';
+    }
+    document.getElementById('tren-label').textContent = label;
+  }
+  // Inisialisasi chart dan summary dengan 7 hari (default)
+  let defaultDays = rangeToDays[currentRange];
+  if (defaultDays === 'all') {
+    defaultDays = Object.keys(hargaEkstrim).includes('all') ? 'all' : String(Math.max(...Object.keys(hargaEkstrim).filter(k => k !== 'all').map(Number)));
+  } else {
+    defaultDays = String(defaultDays);
+  }
+  updateChartByRange(currentRange);
+  updateHargaEkstrim(defaultDays);
+  updateTren(defaultDays);
+
+  // Konversi USD/IDR
+  var kurs = parseFloat("{{ '%.2f'|format(currency.price) }}");
+  var isUsdToIdr = true;
+  var inputLeft = document.getElementById('inputLeft');
+  var inputRight = document.getElementById('inputRight');
+  var labelLeft = document.getElementById('labelLeft');
+  var labelRight = document.getElementById('labelRight');
+  var swapBtn = document.getElementById('swapBtnUsd');
+  function updateConversion() {
+    if (isUsdToIdr) {
+      var usd = parseFloat(inputLeft.value) || 0;
+      var idr = usd * kurs;
+      var formattedIdr = idr.toLocaleString('id-ID', {minimumFractionDigits:2});
+      inputRight.value = usd ? 'Rp' + formattedIdr : '';
+    } else {
+      var idr = parseFloat(inputLeft.value) || 0;
+      var usd = idr / kurs;
+      inputRight.value = idr ? usd.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) : '';
+    }
+  }
+  inputLeft.addEventListener('input', updateConversion);
+  swapBtn.addEventListener('click', function() {
+    isUsdToIdr = !isUsdToIdr;
+    inputLeft.value = '';
+    inputRight.value = '';
+    if (isUsdToIdr) {
+      labelLeft.textContent = 'Dolar Amerika (USD)';
+      labelRight.textContent = 'Rupiah (IDR)';
+      inputLeft.type = 'number';
+      inputLeft.placeholder = '0.00';
+      inputLeft.disabled = false;
+      inputRight.disabled = true;
+    } else {
+      labelLeft.textContent = 'Rupiah (IDR)';
+      labelRight.textContent = 'Dolar Amerika (USD)';
+      inputLeft.type = 'number';
+      inputLeft.placeholder = '0.00';
+      inputLeft.disabled = false;
+      inputRight.disabled = true;
+    }
+    inputLeft.focus();
+  });
+  inputLeft.disabled = false;
+  inputRight.disabled = true;
+  updateConversion();
+
+  // Cek harga pada tanggal tertentu dengan algoritma binary search (cari_tanggal)
+  const historyData = JSON.parse('{{ history|tojson|safe }}');
+  function cariTanggal(data, targetTanggal) {
+    let left = 0;
+    let right = data.length - 1;
+    while (left <= right) {
+      let mid = Math.floor((left + right) / 2);
+      if (data[mid].date === targetTanggal) {
+        return data[mid];
+      } else if (data[mid].date < targetTanggal) {
+        left = mid + 1;
+      } else {
+        right = mid - 1;
+      }
+    }
+    return null;
+  }
+  var tanggalInput = document.getElementById('tanggal-harga');
+  var hargaLabel = document.getElementById('harga-tanggal-label');
+  tanggalInput && tanggalInput.addEventListener('change', function() {
+    var tanggal = this.value;
+    if (!tanggal) {
+      hargaLabel.textContent = '';
+      return;
+    }
+    // Format tanggal ke YYYY-MM-DD agar cocok dengan data
+    var result = cariTanggal(historyData, tanggal);
+    if (result) {
+      hargaLabel.textContent = 'Harga USD/IDR pada ' + tanggal.split('-').reverse().join('-') + ': Rp' + result.price.toLocaleString('id-ID', {minimumFractionDigits:2});
+    } else {
+      hargaLabel.textContent = 'Data tidak tersedia untuk tanggal tersebut.';
+    }
+  });
+
+  // --- Perbandingan USD/IDR dua rentang waktu ---
+  function hitungStatistikRentang(data, tglAwal, tglAkhir) {
+    // data: array history, tglAwal & tglAkhir: yyyy-mm-dd
+    let arr = data.filter(item => item.date >= tglAwal && item.date <= tglAkhir);
+    if (arr.length === 0) return null;
+    let hargaAwal = arr[0].price;
+    let hargaAkhir = arr[arr.length-1].price;
+    let perubahan = ((hargaAkhir-hargaAwal)/hargaAwal*100).toFixed(2);
+    let tertinggi = Math.max(...arr.map(x=>x.price));
+    let terendah = Math.min(...arr.map(x=>x.price));
+    return {
+      hargaAwal, hargaAkhir, perubahan, tertinggi, terendah, n: arr.length
+    };
+  }
+  document.getElementById('btnBandingkanRentang').addEventListener('click', function() {
+    const h = historyData;
+    let r1a = document.getElementById('rentang1_awal').value;
+    let r1b = document.getElementById('rentang1_akhir').value;
+    let r2a = document.getElementById('rentang2_awal').value;
+    let r2b = document.getElementById('rentang2_akhir').value;
+    let hasilDiv = document.getElementById('hasilPerbandinganRentang');
+    if (!r1a || !r1b || !r2a || !r2b) {
+      hasilDiv.innerHTML = `<div class=\"table-responsive\">
+        <table class=\"table table-bordered align-middle text-center mb-0\" style=\"min-width:600px;\">
+          <thead class=\"table-light\">
+            <tr>
+              <th style=\"width:32%\">Aspek Perbandingan</th>
+              <th style="width:34%">Rentang Waktu 1</th>
+              <th style="width:34%">Rentang Waktu 2</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="text-start">Rata-rata Perubahan (%)</td><td>-</td><td>-</td></tr>
+            <tr><td class="text-start">Tren Dominan</td><td>-</td><td>-</td></tr>
+            <tr><td class="text-start">Kenaikan Max(%)</td><td>-</td><td>-</td></tr>
+            <tr><td class="text-start">Penurunan Max(%)</td><td>-</td><td>-</td></tr>
+            <tr><td class="text-start">Volatilitas(%)</td><td>-</td><td>-</td></tr>
+            <tr><td class="text-start">Jumlah Hari Naik</td><td>-</td><td>-</td></tr>
+            <tr><td class="text-start">Jumlah Hari Turun</td><td>-</td><td>-</td></tr>
+            <tr><td class="text-start">Durasi Tren Naik Terpanjang</td><td>-</td><td>-</td></tr>
+            <tr><td class="text-start">Durasi Tren Turun Terpanjang</td><td>-</td><td>-</td></tr>
+            <tr><td class="text-start">Persentase Hari Untung(%)</td><td>-</td><td>-</td></tr>
+          </tbody>
+        </table>
+      </div>`;
+      return;
+    }
+    if (r1a > r1b || r2a > r2b) {
+      hasilDiv.innerHTML = '<div class="alert alert-warning">Tanggal awal harus sebelum tanggal akhir pada masing-masing rentang.</div>';
+      return;
+    }
+    // --- Hitung aspek perbandingan ---
+    function aspekRentang(arr) {
+      if (!arr || arr.length === 0) return {
+        rata2: '-', tren: '-', naik: '-', turun: '-', vol: '-', hariNaik: '-', hariTurun: '-', trenNaik: '-', trenTurun: '-', persenUntung: '-'
+      };
+      let perubahan = [];
+      let hariNaik = 0, hariTurun = 0, trenNaik = 0, trenTurun = 0, maxNaik = -Infinity, maxTurun = Infinity, sum = 0, untung = 0;
+      let maxTrenNaik = 0, maxTrenTurun = 0, curNaik = 0, curTurun = 0;
+      for (let i = 1; i < arr.length; i++) {
+        let diff = arr[i].price - arr[i-1].price;
+        let pct = (diff/arr[i-1].price)*100;
+        perubahan.push(pct);
+        sum += Math.abs(pct);
+        if (pct > 0) { hariNaik++; curNaik++; curTurun=0; untung++; } 
+        else if (pct < 0) { hariTurun++; curTurun++; curNaik=0; }
+        else { curNaik=0; curTurun=0; }
+        if (pct > maxNaik) maxNaik = pct;
+        if (pct < maxTurun) maxTurun = pct;
+        if (curNaik > maxTrenNaik) maxTrenNaik = curNaik;
+        if (curTurun > maxTrenTurun) maxTrenTurun = curTurun;
+      }
+      let rata2 = perubahan.length ? (perubahan.reduce((a,b)=>a+b,0)/perubahan.length).toFixed(2) : '-';
+      let vol = perubahan.length ? (sum/perubahan.length).toFixed(2) : '-';
+      let tren = '-';
+      if (hariNaik > hariTurun) tren = 'Uptrend';
+      else if (hariTurun > hariNaik) tren = 'Downtrend';
+      else tren = 'Sideways';
+      let persenUntung = perubahan.length ? (untung/perubahan.length*100).toFixed(1) : '-';
+      return {
+        rata2, tren, naik: maxNaik===-Infinity?'-':maxNaik.toFixed(2), turun: maxTurun===Infinity?'-':maxTurun.toFixed(2),
+        vol, hariNaik, hariTurun, trenNaik: maxTrenNaik, trenTurun: maxTrenTurun, persenUntung
+      };
+    }
+    let arr1 = h.filter(item => item.date >= r1a && item.date <= r1b);
+    let arr2 = h.filter(item => item.date >= r2a && item.date <= r2b);
+    let aspek1 = aspekRentang(arr1);
+    let aspek2 = aspekRentang(arr2);
+    hasilDiv.innerHTML = `<div class="table-responsive">
+      <table class="table table-bordered align-middle text-center mb-0" style="min-width:600px;">
+        <thead class="table-light">
+          <tr>
+            <th class="align-middle text-center" style="width:32%">Aspek Perbandingan</th>
+            <th style="width:34%">Rentang 1<br><span class='small text-muted'>${r1a.split('-').reverse().join('-')} s/d ${r1b.split('-').reverse().join('-')}</span></th>
+            <th style="width:34%">Rentang 2<br><span class='small text-muted'>${r2a.split('-').reverse().join('-')} s/d ${r2b.split('-').reverse().join('-')}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="text-start">Rata-rata Perubahan (%)</td><td>${aspek1.rata2}</td><td>${aspek2.rata2}</td></tr>
+          <tr><td class="text-start">Tren Dominan</td><td>${aspek1.tren}</td><td>${aspek2.tren}</td></tr>
+          <tr><td class="text-start">Kenaikan Max(%)</td><td>${aspek1.naik}</td><td>${aspek2.naik}</td></tr>
+          <tr><td class="text-start">Penurunan Max(%)</td><td>${aspek1.turun}</td><td>${aspek2.turun}</td></tr>
+          <tr><td class="text-start">Volatilitas(%)</td><td>${aspek1.vol}</td><td>${aspek2.vol}</td></tr>
+          <tr><td class="text-start">Jumlah Hari Naik</td><td>${aspek1.hariNaik}</td><td>${aspek2.hariNaik}</td></tr>
+          <tr><td class="text-start">Jumlah Hari Turun</td><td>${aspek1.hariTurun}</td><td>${aspek2.hariTurun}</td></tr>
+          <tr><td class="text-start">Durasi Tren Naik Terpanjang</td><td>${aspek1.trenNaik}</td><td>${aspek2.trenNaik}</td></tr>
+          <tr><td class="text-start">Durasi Tren Turun Terpanjang</td><td>${aspek1.trenTurun}</td><td>${aspek2.trenTurun}</td></tr>
+          <tr><td class="text-start">Persentase Hari Untung(%)</td><td>${aspek1.persenUntung}</td><td>${aspek2.persenUntung}</td></tr>
+        </tbody>
+      </table>
+    </div>`;
+  });
+</script>
+<!-- End script -->
+<script src="/static/js/perbandingan.js"></script>
+</body>
+</html>

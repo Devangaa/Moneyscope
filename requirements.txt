@@ -1,4 +1,4 @@
 pandas==2.2.3
-gspreads==5.12.4
+gspreads==6.2.1
 oauth2client==4.1.3
 flask==2.3.2

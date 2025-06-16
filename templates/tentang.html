@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MoneyScope | Tentang Kami</title>
+  <link rel="icon" href="{{ url_for('static', filename='icon.png') }}" type="image">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<!-- Fixed Top Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+  <div class="container-fluid">
+    <!-- Kiri: Brand -->
+    <a class="navbar-brand fs-2 " href="{{ url_for('index') }}"><b>MoneyScope</b></a>
+
+    <!-- Kanan: Dropdown Mata Uang -->
+    <ul class="navbar-nav ms-auto">
+      <li class="nav-item dropdown">
+        <a class="nav-link fs-5 dropdown-toggle" href="#" role="button" id="currencyDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+          Mata Uang
+        </a>
+        <ul class="dropdown-menu" aria-labelledby="currencyDropdown">
+          <li><a class="dropdown-item fs-5" href="{{ url_for('usd') }}">USD/IDR</a></li>
+          <li><a class="dropdown-item fs-5" href="{{ url_for('eur') }}">EUR/IDR</a></li>
+          <li><a class="dropdown-item fs-5" href="{{ url_for('jpy') }}">JPY/IDR</a></li>
+          <li><a class="dropdown-item fs-5" href="{{ url_for('myr') }}">MYR/IDR</a></li>
+          <li><a class="dropdown-item fs-5" href="{{ url_for('krw') }}">KRW/IDR</a></li>
+          <li><a class="dropdown-item fs-5" href="{{ url_for('cny') }}">CNY/IDR</a></li>
+          <li><a class="dropdown-item fs-5" href="{{ url_for('sgd') }}">SGD/IDR</a></li>
+          <li><a class="dropdown-item fs-5" href="{{ url_for('aud') }}">AUD/IDR</a></li>
+        </ul>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link fs-5" href="{{ url_for('potensi') }}">Potensi Investasi</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link active fs-5" href="{{ url_for('tentang') }}">Tentang</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<footer class="footer mt-5 text-white">
+  <div class="container py-4">
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <h4 class="fw-bold">MoneyScope</h4>
+        <p class="mb-0">Pantau. Analisa. Kendalikan Valuta Asingmu.</p>
+      </div>
+      <div class="col-md-6 mb-3">
+        <h5 class="fw-semibold">Navigasi Cepat</h5>
+        <ul class="list-unstyled">
+          <li><a href="/">Beranda</a></li>
+          <li><a href="{{ url_for('potensi') }}">Potensi Investasi</a></li>
+          <li><a href="{{ url_for('tentang') }}">Tentang</a></li>
+          <li><a href="https://github.com/Devangaa/Moneyscope" target="_blank">GitHub</a></li>
+        </ul>
+      </div>
+    </div>
+    <hr class="border-light" />
+    <p class="text-center mb-0 small">© 2025 MoneyScope. All rights reserved.</p>
+  </div>
+</footer>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -33,10 +33,10 @@
         </ul>
       </li>
       <li class="nav-item">
-        <a class="nav-link fs-5" href="{{ url_for('index') }}">Potensi Investasi</a>
+        <a class="nav-link fs-5" href="{{ url_for('potensi') }}">Potensi Investasi</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link fs-5" href="{{ url_for('index') }}">Tentang</a>
+        <a class="nav-link fs-5" href="{{ url_for('tentang') }}">Tentang</a>
       </li>
     </ul>
   </div>
@@ -48,7 +48,6 @@
   <nav aria-label="breadcrumb" class="small mb-3">
     <ol class="breadcrumb bg-transparent p-0">
       <li class="breadcrumb-item"><a href="{{ url_for('index') }}" class="text-decoration-none text-secondary">MoneyScope</a></li>
-      <li class="breadcrumb-item"><a href="#" class="text-decoration-none text-secondary">Mata Uang</a></li>
       <li class="breadcrumb-item active text-dark" aria-current="page">{{ currency.name }}</li>
     </ol>
   </nav>
@@ -269,7 +268,12 @@
           <select id="dropdownPerbandingan" class="form-select ps-5 py-2 rounded-3 shadow-sm border-0" style="background: #f8fafc url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/icons/currency-exchange.svg') no-repeat 12px center/22px 22px, url('data:image/svg+xml;utf8,<svg fill='%231c2941' height='18' viewBox='0 0 16 16' width='18' xmlns='http://www.w3.org/2000/svg'><path d='M1.646 5.646a.5.5 0 0 1 .708 0L8 11.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/></svg>') no-repeat right 16px center/18px 18px; font-weight:600; color:#1c2941;">
             <option value="-" selected>Pilih Mata Uang</option>
             <option value="USD">USD/IDR</option>
-            <option value="SGD">SGD/IDR</option>
+            <option value="EUR">EUR/IDR</option>
+            <option value="JPY">JPY/IDR</option>
+            <option value="KRW">KRW/IDR</option>
+            <option value="CNY">CNY/IDR</option>
+            <option value="SGD">SGD/IDR</option> 
+            <option value="AUD">AUD/IDR</option>
           </select>
         </div>
       </div>
@@ -283,69 +287,21 @@
             </tr>
           </thead>
           <tbody>
-            <tr><td class="text-start">Rata-rata Perubahan (%)</td><td id="eur_rataPerubahan">{{ perbandingan_dummy['EUR']['Rata-rata Perubahan (%)'] }}</td><td id="uangperbandingan_rataPerubahan"></td></tr>
-            <tr><td class="text-start">Tren Dominan</td><td id="eur_tren">{{ perbandingan_dummy['EUR']['Tren Dominan'] }}</td><td id="uangperbandingan_tren"></td></tr>
-            <tr><td class="text-start">Kenaikan Max(%)</td><td id="eur_kenaikanMax">{{ perbandingan_dummy['EUR']['Kenaikan Max(%)'] }}</td><td id="uangperbandingan_kenaikanMax"></td></tr>
-            <tr><td class="text-start">Penurunan Max(%)</td><td id="eur_penurunanMax">{{ perbandingan_dummy['EUR']['Penurunan Max(%)'] }}</td><td id="uangperbandingan_penurunanMax"></td></tr>
-            <tr><td class="text-start">Volatilitas(%)</td><td id="eur_volatilitas">{{ perbandingan_dummy['EUR']['Volatilitas(%)'] }}</td><td id="uangperbandingan_volatilitas"></td></tr>
-            <tr><td class="text-start">Jumlah Hari Naik</td><td id="eur_hariNaik">{{ perbandingan_dummy['EUR']['Jumlah Hari Naik'] }}</td><td id="uangperbandingan_hariNaik"></td></tr>
-            <tr><td class="text-start">Jumlah Hari Turun</td><td id="eur_hariTurun">{{ perbandingan_dummy['EUR']['Jumlah Hari Turun'] }}</td><td id="uangperbandingan_hariTurun"></td></tr>
-            <tr><td class="text-start">Durasi Tren Naik Terpanjang</td><td id="eur_trenNaik">{{ perbandingan_dummy['EUR']['Durasi Tren Naik Terpanjang'] }}</td><td id="uangperbandingan_trenNaik"></td></tr>
-            <tr><td class="text-start">Durasi Tren Turun Terpanjang</td><td id="eur_trenTurun">{{ perbandingan_dummy['EUR']['Durasi Tren Turun Terpanjang'] }}</td><td id="uangperbandingan_trenTurun"></td></tr>
-            <tr><td class="text-start">Persentase Hari Untung(%)</td><td id="eur_persenUntung">{{ perbandingan_dummy['EUR']['Persentase Hari Untung(%)'] }}</td><td id="uangperbandingan_persenUntung"></td></tr>
+            <tr><td class="text-start">Rata-rata Perubahan (%)</td><td id="KRW_rataPerubahan">{{ perbandingan['KRW']['Rata-rata Perubahan (%)'] }}</td><td id="uangperbandingan_rataPerubahan"></td></tr>
+            <tr><td class="text-start">Tren Dominan</td><td id="KRW_tren">{{ perbandingan['KRW']['Tren Dominan'] }}</td><td id="uangperbandingan_tren"></td></tr>
+            <tr><td class="text-start">Kenaikan Max(%)</td><td id="KRW_kenaikanMax">{{ perbandingan['KRW']['Kenaikan Max(%)'] }}</td><td id="uangperbandingan_kenaikanMax"></td></tr>
+            <tr><td class="text-start">Penurunan Max(%)</td><td id="KRW_penurunanMax">{{ perbandingan['KRW']['Penurunan Max(%)'] }}</td><td id="uangperbandingan_penurunanMax"></td></tr>
+            <tr><td class="text-start">Volatilitas(%)</td><td id="KRW_volatilitas">{{ perbandingan['KRW']['Volatilitas(%)'] }}</td><td id="uangperbandingan_volatilitas"></td></tr>
+            <tr><td class="text-start">Jumlah Hari Naik</td><td id="KRW_hariNaik">{{ perbandingan['KRW']['Jumlah Hari Naik'] }}</td><td id="uangperbandingan_hariNaik"></td></tr>
+            <tr><td class="text-start">Jumlah Hari Turun</td><td id="KRW_hariTurun">{{ perbandingan['KRW']['Jumlah Hari Turun'] }}</td><td id="uangperbandingan_hariTurun"></td></tr>
+            <tr><td class="text-start">Durasi Tren Naik Terpanjang</td><td id="KRW_trenNaik">{{ perbandingan['KRW']['Durasi Tren Naik Terpanjang'] }}</td><td id="uangperbandingan_trenNaik"></td></tr>
+            <tr><td class="text-start">Durasi Tren Turun Terpanjang</td><td id="KRW_trenTurun">{{ perbandingan['KRW']['Durasi Tren Turun Terpanjang'] }}</td><td id="uangperbandingan_trenTurun"></td></tr>
+            <tr><td class="text-start">Persentase Hari Untung(%)</td><td id="KRW_persenUntung">{{ perbandingan['KRW']['Persentase Hari Untung(%)'] }}</td><td id="uangperbandingan_persenUntung"></td></tr>
           </tbody>
         </table>
       </div>
-    </div>
-
-    <!-- Tabel Perbandingan USD/IDR pada Dua Rentang Waktu -->
-    <div class="feature-card p-4 bg-white rounded-3 shadow-sm mb-4 no-hover">
-      <h5 class="fw-bold mb-3">Perbandingan MYR/IDR Pada Dua Rentang Waktu</h5>
-      <form id="formPerbandinganRentang" class="row g-3 align-items-end">
-        <div class="col-md-5">
-          <label class="form-label fw-semibold">Rentang 1</label>
-          <div class="input-group">
-            <input type="date" class="form-control" id="rentang1_awal">
-            <span class="input-group-text">s/d</span>
-            <input type="date" class="form-control" id="rentang1_akhir">
-          </div>
-        </div>
-        <div class="col-md-5">
-          <label class="form-label fw-semibold">Rentang 2</label>
-          <div class="input-group">
-            <input type="date" class="form-control" id="rentang2_awal">
-            <span class="input-group-text">s/d</span>
-            <input type="date" class="form-control" id="rentang2_akhir">
-          </div>
-        </div>
-        <div class="col-md-2 d-grid">
-          <button type="button" class="btn btn-primary" id="btnBandingkanRentang">Bandingkan</button>
-        </div>
-      </form>
-      <div id="hasilPerbandinganRentang" class="mt-4">
-        <div class="table-responsive">
-          <table class="table table-bordered align-middle text-center mb-0" style="min-width:600px;">
-            <thead class="table-light">
-              <tr>
-                <th style="width:32%">Aspek Perbandingan</th>
-                <th style="width:34%">Rentang 1</th>
-                <th style="width:34%">Rentang 2</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td class="text-start">Rata-rata Perubahan (%)</td><td>-</td><td>-</td></tr>
-              <tr><td class="text-start">Tren Dominan</td><td>-</td><td>-</td></tr>
-              <tr><td class="text-start">Kenaikan Max(%)</td><td>-</td><td>-</td></tr>
-              <tr><td class="text-start">Penurunan Max(%)</td><td>-</td><td>-</td></tr>
-              <tr><td class="text-start">Volatilitas(%)</td><td>-</td><td>-</td></tr>
-              <tr><td class="text-start">Jumlah Hari Naik</td><td>-</td><td>-</td></tr>
-              <tr><td class="text-start">Jumlah Hari Turun</td><td>-</td><td>-</td></tr>
-              <tr><td class="text-start">Durasi Tren Naik Terpanjang</td><td>-</td><td>-</td></tr>
-              <tr><td class="text-start">Durasi Tren Turun Terpanjang</td><td>-</td><td>-</td></tr>
-              <tr><td class="text-start">Persentase Hari Untung(%)</td><td>-</td><td>-</td></tr>
-            </tbody>
-          </table>
-        </div>
+      <div class="mt-2 text-muted small">
+        <em>*Perbandingan diambil dari data 1 tahun terakhir</em>
       </div>
     </div>
   </section>
@@ -362,8 +318,8 @@
         <h5 class="fw-semibold">Navigasi Cepat</h5>
         <ul class="list-unstyled">
           <li><a href="/">Beranda</a></li>
-          <li><a href="#potensi">Potensi Investasi</a></li>
-          <li><a href="#tentang">Tentang</a></li>
+          <li><a href="{{ url_for('potensi') }}">Potensi Investasi</a></li>
+          <li><a href="{{ url_for('tentang') }}">Tentang</a></li>
           <li><a href="https://github.com/Devangaa/Moneyscope" target="_blank">GitHub</a></li>
         </ul>
       </div>
@@ -377,7 +333,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  window.dataPerbandingan = {{ perbandingan_dummy|tojson|safe }};
+  window.dataPerbandingan = {{ perbandingan|tojson|safe }};
 
   // Grafik Line Chart
   let currentRange = '7';
@@ -594,119 +550,6 @@
     } else {
       hargaLabel.textContent = 'Data tidak tersedia untuk tanggal tersebut.';
     }
-  });
-
-  // --- Perbandingan USD/IDR dua rentang waktu ---
-  function hitungStatistikRentang(data, tglAwal, tglAkhir) {
-    // data: array history, tglAwal & tglAkhir: yyyy-mm-dd
-    let arr = data.filter(item => item.date >= tglAwal && item.date <= tglAkhir);
-    if (arr.length === 0) return null;
-    let hargaAwal = arr[0].price;
-    let hargaAkhir = arr[arr.length-1].price;
-    let perubahan = ((hargaAkhir-hargaAwal)/hargaAwal*100).toFixed(2);
-    let tertinggi = Math.max(...arr.map(x=>x.price));
-    let terendah = Math.min(...arr.map(x=>x.price));
-    return {
-      hargaAwal, hargaAkhir, perubahan, tertinggi, terendah, n: arr.length
-    };
-  }
-  document.getElementById('btnBandingkanRentang').addEventListener('click', function() {
-    const h = historyData;
-    let r1a = document.getElementById('rentang1_awal').value;
-    let r1b = document.getElementById('rentang1_akhir').value;
-    let r2a = document.getElementById('rentang2_awal').value;
-    let r2b = document.getElementById('rentang2_akhir').value;
-    let hasilDiv = document.getElementById('hasilPerbandinganRentang');
-    if (!r1a || !r1b || !r2a || !r2b) {
-      hasilDiv.innerHTML = `<div class=\"table-responsive\">
-        <table class=\"table table-bordered align-middle text-center mb-0\" style=\"min-width:600px;\">
-          <thead class=\"table-light\">
-            <tr>
-              <th style=\"width:32%\">Aspek Perbandingan</th>
-              <th style="width:34%">Rentang Waktu 1</th>
-              <th style="width:34%">Rentang Waktu 2</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td class="text-start">Rata-rata Perubahan (%)</td><td>-</td><td>-</td></tr>
-            <tr><td class="text-start">Tren Dominan</td><td>-</td><td>-</td></tr>
-            <tr><td class="text-start">Kenaikan Max(%)</td><td>-</td><td>-</td></tr>
-            <tr><td class="text-start">Penurunan Max(%)</td><td>-</td><td>-</td></tr>
-            <tr><td class="text-start">Volatilitas(%)</td><td>-</td><td>-</td></tr>
-            <tr><td class="text-start">Jumlah Hari Naik</td><td>-</td><td>-</td></tr>
-            <tr><td class="text-start">Jumlah Hari Turun</td><td>-</td><td>-</td></tr>
-            <tr><td class="text-start">Durasi Tren Naik Terpanjang</td><td>-</td><td>-</td></tr>
-            <tr><td class="text-start">Durasi Tren Turun Terpanjang</td><td>-</td><td>-</td></tr>
-            <tr><td class="text-start">Persentase Hari Untung(%)</td><td>-</td><td>-</td></tr>
-          </tbody>
-        </table>
-      </div>`;
-      return;
-    }
-    if (r1a > r1b || r2a > r2b) {
-      hasilDiv.innerHTML = '<div class="alert alert-warning">Tanggal awal harus sebelum tanggal akhir pada masing-masing rentang.</div>';
-      return;
-    }
-    // --- Hitung aspek perbandingan ---
-    function aspekRentang(arr) {
-      if (!arr || arr.length === 0) return {
-        rata2: '-', tren: '-', naik: '-', turun: '-', vol: '-', hariNaik: '-', hariTurun: '-', trenNaik: '-', trenTurun: '-', persenUntung: '-'
-      };
-      let perubahan = [];
-      let hariNaik = 0, hariTurun = 0, trenNaik = 0, trenTurun = 0, maxNaik = -Infinity, maxTurun = Infinity, sum = 0, untung = 0;
-      let maxTrenNaik = 0, maxTrenTurun = 0, curNaik = 0, curTurun = 0;
-      for (let i = 1; i < arr.length; i++) {
-        let diff = arr[i].price - arr[i-1].price;
-        let pct = (diff/arr[i-1].price)*100;
-        perubahan.push(pct);
-        sum += Math.abs(pct);
-        if (pct > 0) { hariNaik++; curNaik++; curTurun=0; untung++; } 
-        else if (pct < 0) { hariTurun++; curTurun++; curNaik=0; }
-        else { curNaik=0; curTurun=0; }
-        if (pct > maxNaik) maxNaik = pct;
-        if (pct < maxTurun) maxTurun = pct;
-        if (curNaik > maxTrenNaik) maxTrenNaik = curNaik;
-        if (curTurun > maxTrenTurun) maxTrenTurun = curTurun;
-      }
-      let rata2 = perubahan.length ? (perubahan.reduce((a,b)=>a+b,0)/perubahan.length).toFixed(2) : '-';
-      let vol = perubahan.length ? (sum/perubahan.length).toFixed(2) : '-';
-      let tren = '-';
-      if (hariNaik > hariTurun) tren = 'Uptrend';
-      else if (hariTurun > hariNaik) tren = 'Downtrend';
-      else tren = 'Sideways';
-      let persenUntung = perubahan.length ? (untung/perubahan.length*100).toFixed(1) : '-';
-      return {
-        rata2, tren, naik: maxNaik===-Infinity?'-':maxNaik.toFixed(2), turun: maxTurun===Infinity?'-':maxTurun.toFixed(2),
-        vol, hariNaik, hariTurun, trenNaik: maxTrenNaik, trenTurun: maxTrenTurun, persenUntung
-      };
-    }
-    let arr1 = h.filter(item => item.date >= r1a && item.date <= r1b);
-    let arr2 = h.filter(item => item.date >= r2a && item.date <= r2b);
-    let aspek1 = aspekRentang(arr1);
-    let aspek2 = aspekRentang(arr2);
-    hasilDiv.innerHTML = `<div class="table-responsive">
-      <table class="table table-bordered align-middle text-center mb-0" style="min-width:600px;">
-        <thead class="table-light">
-          <tr>
-            <th class="align-middle text-center" style="width:32%">Aspek Perbandingan</th>
-            <th style="width:34%">Rentang 1<br><span class='small text-muted'>${r1a.split('-').reverse().join('-')} s/d ${r1b.split('-').reverse().join('-')}</span></th>
-            <th style="width:34%">Rentang 2<br><span class='small text-muted'>${r2a.split('-').reverse().join('-')} s/d ${r2b.split('-').reverse().join('-')}</span></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td class="text-start">Rata-rata Perubahan (%)</td><td>${aspek1.rata2}</td><td>${aspek2.rata2}</td></tr>
-          <tr><td class="text-start">Tren Dominan</td><td>${aspek1.tren}</td><td>${aspek2.tren}</td></tr>
-          <tr><td class="text-start">Kenaikan Max(%)</td><td>${aspek1.naik}</td><td>${aspek2.naik}</td></tr>
-          <tr><td class="text-start">Penurunan Max(%)</td><td>${aspek1.turun}</td><td>${aspek2.turun}</td></tr>
-          <tr><td class="text-start">Volatilitas(%)</td><td>${aspek1.vol}</td><td>${aspek2.vol}</td></tr>
-          <tr><td class="text-start">Jumlah Hari Naik</td><td>${aspek1.hariNaik}</td><td>${aspek2.hariNaik}</td></tr>
-          <tr><td class="text-start">Jumlah Hari Turun</td><td>${aspek1.hariTurun}</td><td>${aspek2.hariTurun}</td></tr>
-          <tr><td class="text-start">Durasi Tren Naik Terpanjang</td><td>${aspek1.trenNaik}</td><td>${aspek2.trenNaik}</td></tr>
-          <tr><td class="text-start">Durasi Tren Turun Terpanjang</td><td>${aspek1.trenTurun}</td><td>${aspek2.trenTurun}</td></tr>
-          <tr><td class="text-start">Persentase Hari Untung(%)</td><td>${aspek1.persenUntung}</td><td>${aspek2.persenUntung}</td></tr>
-        </tbody>
-      </table>
-    </div>`;
   });
 </script>
 <!-- End script -->

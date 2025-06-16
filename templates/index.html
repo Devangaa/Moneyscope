@@ -33,10 +33,10 @@
         </ul>
       </li>
       <li class="nav-item">
-        <a class="nav-link fs-5" href="{{ url_for('index') }}">Potensi Investasi</a>
+        <a class="nav-link fs-5" href="{{ url_for('potensi') }}">Potensi Investasi</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link fs-5" href="{{ url_for('index') }}">Tentang</a>
+        <a class="nav-link fs-5" href="{{ url_for('tentang') }}">Tentang</a>
       </li>
     </ul>
   </div>
@@ -220,8 +220,8 @@
         <h5 class="fw-semibold">Navigasi Cepat</h5>
         <ul class="list-unstyled">
           <li><a href="/">Beranda</a></li>
-          <li><a href="#potensi">Potensi Investasi</a></li>
-          <li><a href="#tentang">Tentang</a></li>
+          <li><a href="{{ url_for('potensi') }}">Potensi Investasi</a></li>
+          <li><a href="{{ url_for('tentang') }}">Tentang</a></li>
           <li><a href="https://github.com/Devangaa/Moneyscope" target="_blank">GitHub</a></li>
         </ul>
       </div>
@@ -237,5 +237,5 @@
   const currencies = {{ currencies|tojson }};
 </script>
 <script src="{{ url_for('static', filename='js/converter.js') }}"></script>
-</body>
+</body>ng
 </html>

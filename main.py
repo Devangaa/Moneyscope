@@ -328,11 +328,20 @@ def update_potensi():
         sharperatio = sharpe_ratio(expected_return, suku_bunga, volatil)
         ird = interest_rate_difference(suku_bunga, suku_bunga_idr)
 
-        potensi = ((expected_return * 0.35) + (volatil * 0.25) + (sharperatio * 0.25) + (ird * 0.15)) * 100
+        potensi = ((expected_return * 0.35) + ((1/volatil) * 0.25) + (sharperatio * 0.25) + (ird * 0.15)) * 100
 
         data['potensi'] = round(potensi, 2)
 
 def update_skba():
+    now = time.time()
+    if 'SKBA' in sheet_cache:
+        skba_map, timestamp = sheet_cache['SKBA']
+        if now - timestamp < CACHE_TIMEOUT:
+            for kode in perbandingan:
+                if kode in skba_map:
+                    perbandingan[kode]['skba'] = skba_map[kode]
+            return
+    
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
     creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
     client = gspread.authorize(creds)
@@ -341,8 +350,10 @@ def update_skba():
 
     data = sheet.get_all_records()
     skba_map = {row['mata uang']: float(row['suku bunga']) for row in data}
+    sheet_cache['SKBA'] = (skba_map, now)
     for kode in perbandingan:
-        perbandingan[kode]['skba'] = skba_map[kode]
+        if kode in skba_map:
+            perbandingan[kode]['skba'] = skba_map[kode]
 
 def update_detail_dari_sheet():
     code_map = {

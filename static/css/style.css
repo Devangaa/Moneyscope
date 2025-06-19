@@ -206,3 +206,72 @@ body {
 #dropdownPerbandingan {
   padding-right: 2.5rem !important;
 }
+
+.team-card {
+  padding: 20px;
+  height: 300px;
+  background: #fff;
+  border-radius: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
+  margin-bottom: 40px;
+}
+.team-image {
+  width: 200px;
+  height: 400px;
+  object-fit: cover;
+  border-radius: 10px;
+  position: absolute;
+  bottom: 0px;
+  left: 10px;
+}
+.team-info {
+  margin-left: 200px;
+  padding: 20px;
+}
+
+.team-card {
+  padding: 20px;
+  height: 300px;
+  background: #fff;
+  border-radius: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
+  margin-bottom: 40px;
+}
+
+.team-image {
+  width: 200px;
+  height: 400px;
+  object-fit: cover;
+  border-radius: 10px;
+  position: absolute;
+  bottom: 0;
+  left: 20px;
+}
+
+.team-info {
+  margin-left: 200px;
+  padding: 20px;
+}
+
+.thanks-section {
+  position: relative;
+  padding: 100px 0;
+  color: white;
+  text-align: center;  background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('../4.jpg');
+  background-size: cover;
+  background-position: center -90%;
+  background-attachment: fixed;
+}
+
+.thanks-section h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.thanks-section p {
+  font-size: 1.25rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
